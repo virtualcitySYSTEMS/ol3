@@ -10,6 +10,7 @@ goog.require('ol.xml');
 /**
  * @classdesc
  * CityGML class for parsing, currently only used in WFS2Format for reading wfs:GetFeature response
+ * Not suitable for other use currently..
  *
  * @constructor
  * @param {olx.format.GMLOptions=} opt_options
