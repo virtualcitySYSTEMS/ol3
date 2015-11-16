@@ -15,7 +15,7 @@ goog.require('ol.format.CityGML');
  * Currently only reads in CityGML2.0 and only parses a getFeature response
  *
  * @constructor
- * @param {Object} opt_options
+ * @param {Object=} opt_options
  *     Optional configuration object.
  * @extends {ol.format.XMLFeature}
  * @api stable
