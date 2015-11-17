@@ -15,13 +15,10 @@ goog.require('ol.format.CityGML');
  * Currently only reads in CityGML2.0 and only parses a getFeature response
  *
  * @constructor
- * @param {Object=} opt_options
- *     Optional configuration object.
  * @extends {ol.format.XMLFeature}
  * @api stable
  */
-ol.format.WFS2 = function(opt_options) {
-  var options = opt_options ? opt_options : {};
+ol.format.WFS2 = function() {
 
   /**
    * @private
@@ -33,7 +30,7 @@ ol.format.WFS2 = function(opt_options) {
    * @private
    * @type {string}
    */
-  this.schemaLocation_ = options.schemaLocation ? options.schemaLocation : ol.format.WFS2.SCHEMA_LOCATION;
+  this.schemaLocation_ = ol.format.WFS2.SCHEMA_LOCATION;
 
   /**
    * @type {Object.<string, Object.<string, Object>>}
@@ -72,7 +69,7 @@ ol.format.WFS2.SCHEMA_LOCATION = ol.format.WFS2.WFS2NS + ' http://schemas.opengi
  */
 ol.format.WFS2.prototype.readFeaturesFromNode = function(node, opt_options) {
 
-  var objectStack = [{}];
+  var objectStack = [];
 
   var features = ol.xml.pushParseAndPop([], this.FEATURE_COLLECTION_PARSERS, node, objectStack, this);
   if (!features) {
