@@ -65,6 +65,17 @@ ol.format.WFS2.WFS2NS = 'http://www.opengis.net/wfs/2.0';
 ol.format.WFS2.SCHEMA_LOCATION = ol.format.WFS2.WFS2NS + ' http://schemas.opengis.net/wfs/2.0/wfs.xsd';
 
 /**
+ * Read all features from a WFS FeatureCollection.
+ *
+ * @function
+ * @param {Document|Node|Object|string} source Source.
+ * @param {olx.format.ReadOptions=} opt_options Read options.
+ * @return {Array.<ol.Feature>} Features.
+ * @api stable
+ */
+ol.format.WFS2.prototype.readFeatures;
+
+/**
  * @inheritDoc
  */
 ol.format.WFS2.prototype.readFeaturesFromNode = function(node, opt_options) {
