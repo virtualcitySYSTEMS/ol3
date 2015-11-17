@@ -45,6 +45,12 @@ ol.format.CityGML = function(opt_options) {
   this.TOP_LEVEL_FEATURE_PARSERS = {
     "http://www.opengis.net/citygml/building/2.0" : {
       "Building" : ol.xml.makeReplacer(this.readBuildingFeature)
+    },
+    "http://www.opengis.net/citygml/generics/2.0" : {
+      "GenericCityObject" : ol.xml.makeReplacer(this.readGenericCityObject)
+    },
+    "http://www.opengis.net/citygml/cityfurniture/2.0" : {
+      "CityFurniture" : ol.xml.makeReplacer(this.readCityFurniture)
     }
   };
 
@@ -66,6 +72,34 @@ ol.format.CityGML = function(opt_options) {
       "storeyHeightsAboveGround" : this.makeObjectPropertySetterAsAttribute(this.readTextValue),
       "storeyHeightsBelowGround" : this.makeObjectPropertySetterAsAttribute(this.readTextValue),
       "address" : ol.xml.makeObjectPropertyPusher(this.readAddress, "children")
+    },
+    "http://www.opengis.net/citygml/generics/2.0" : {
+      "stringAttribute" : this.makeObjectGenericCityGMLPropertySetterAsAttribute(this.readGenericStringAttribute),
+      "intAttribute" : this.makeObjectGenericCityGMLPropertySetterAsAttribute(this.readGenericIntAttribute)
+    }
+  };
+
+  this.GENERIC_CITYOBJECT_PARSER = {
+    "http://www.opengis.net/citygml/2.0" : {
+      "creationDate" : this.makeObjectPropertySetterAsAttribute(this.readTextValue),
+      "externalReference" : ol.xml.makeObjectPropertyPusher(this.readExternalReference, "children")
+    },
+    "http://www.opengis.net/gml" : {
+      "name" : this.makeObjectPropertySetterAsAttribute(this.readTextValue)
+    },
+    "http://www.opengis.net/citygml/generics/2.0" : {
+      "stringAttribute" : this.makeObjectGenericCityGMLPropertySetterAsAttribute(this.readGenericStringAttribute),
+      "intAttribute" : this.makeObjectGenericCityGMLPropertySetterAsAttribute(this.readGenericIntAttribute)
+    }
+  };
+
+  this.CITYFURNITURE_PARSER = {
+    "http://www.opengis.net/citygml/2.0" : {
+      "creationDate" : this.makeObjectPropertySetterAsAttribute(this.readTextValue),
+      "externalReference" : ol.xml.makeObjectPropertyPusher(this.readExternalReference, "children")
+    },
+    "http://www.opengis.net/gml" : {
+      "name" : this.makeObjectPropertySetterAsAttribute(this.readTextValue)
     },
     "http://www.opengis.net/citygml/generics/2.0" : {
       "stringAttribute" : this.makeObjectGenericCityGMLPropertySetterAsAttribute(this.readGenericStringAttribute),
@@ -114,6 +148,29 @@ ol.format.CityGML.prototype.readBuildingFeature = function(node, objectStack){
   object = ol.xml.pushParseAndPop(object, this.BUILDING_PARSER, node, objectStack, this);
   return object;
 };
+
+ol.format.CityGML.prototype.readGenericCityObject = function(node, objectStack){
+  goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT,'node.nodeType should be ELEMENT');
+  var object = {
+    id : node.getAttribute("gml:id"),
+    type : 5,
+    children : []
+  };
+  object = ol.xml.pushParseAndPop(object, this.GENERIC_CITYOBJECT_PARSER, node, objectStack, this);
+  return object;
+};
+
+ol.format.CityGML.prototype.readCityFurniture = function(node, objectStack){
+  goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT,'node.nodeType should be ELEMENT');
+  var object = {
+    id : node.getAttribute("gml:id"),
+    type : 21,
+    children : []
+  };
+  object = ol.xml.pushParseAndPop(object, this.CITYFURNITURE_PARSER, node, objectStack, this);
+  return object;
+};
+
 
 ol.format.CityGML.prototype.readTextValue = function(node, objectstack){
   return node.textContent.trim();
