@@ -9,17 +9,20 @@ var green = 'data:image/gif;base64,R0lGODlhAQABAPAAAAD/AP///yH5BAAAAAAALAAAA' +
 var blue = 'data:image/gif;base64,R0lGODlhAQABAPAAAAAA/////yH5BAAAAAAALAAAAA' +
     'ABAAEAAAICRAEAOw==';
 
-function itNoPhantom() {
-  if (window.mochaPhantomJS) {
-    return xit.apply(this, arguments);
-  } else {
-    return it.apply(this, arguments);
-  }
+var itNoPhantom = window.checkForMocha ? xit : it;
+
+var hasImageDataConstructor = true;
+try {
+  new ImageData(1, 1);
+} catch (e) {
+  hasImageDataConstructor = false;
 }
 
-describe('ol.source.Raster', function() {
+var maybeDescribe = hasImageDataConstructor ? describe : xdescribe;
 
-  var target, map, redSource, greenSource, blueSource;
+maybeDescribe('ol.source.Raster', function() {
+
+  var target, map, redSource, greenSource, blueSource, raster;
 
   beforeEach(function() {
     target = document.createElement('div');
@@ -76,7 +79,12 @@ describe('ol.source.Raster', function() {
   });
 
   afterEach(function() {
-    goog.dispose(map);
+    map.setTarget(null);
+    map.dispose();
+    raster.dispose();
+    greenSource.dispose();
+    redSource.dispose();
+    blueSource.dispose();
     document.body.removeChild(target);
   });
 
@@ -95,7 +103,7 @@ describe('ol.source.Raster', function() {
 
       var log = [];
 
-      raster = new ol.source.Raster({
+      var source = new ol.source.Raster({
         threads: 0,
         sources: [redSource, greenSource, blueSource],
         operation: function(inputs) {
@@ -104,7 +112,7 @@ describe('ol.source.Raster', function() {
         }
       });
 
-      raster.on('afteroperations', function() {
+      source.once('afteroperations', function() {
         expect(log.length).to.equal(4);
         var inputs = log[0];
         var pixel = inputs[0];
@@ -112,7 +120,7 @@ describe('ol.source.Raster', function() {
         done();
       });
 
-      map.getLayers().item(0).setSource(raster);
+      map.getLayers().item(0).setSource(source);
       var view = map.getView();
       view.setCenter([0, 0]);
       view.setZoom(0);
@@ -120,10 +128,9 @@ describe('ol.source.Raster', function() {
     });
 
     itNoPhantom('allows operation type to be set to "image"', function(done) {
-
       var log = [];
 
-      raster = new ol.source.Raster({
+      var source = new ol.source.Raster({
         operationType: ol.raster.OperationType.IMAGE,
         threads: 0,
         sources: [redSource, greenSource, blueSource],
@@ -133,14 +140,14 @@ describe('ol.source.Raster', function() {
         }
       });
 
-      raster.on('afteroperations', function() {
+      source.once('afteroperations', function() {
         expect(log.length).to.equal(1);
         var inputs = log[0];
         expect(inputs[0]).to.be.an(ImageData);
         done();
       });
 
-      map.getLayers().item(0).setSource(raster);
+      map.getLayers().item(0).setSource(source);
       var view = map.getView();
       view.setCenter([0, 0]);
       view.setZoom(0);
@@ -169,7 +176,7 @@ describe('ol.source.Raster', function() {
       view.setCenter([0, 0]);
       view.setZoom(0);
 
-      raster.on('afteroperations', function(event) {
+      raster.once('afteroperations', function(event) {
         expect(count).to.equal(4);
         done();
       });
@@ -208,7 +215,7 @@ describe('ol.source.Raster', function() {
         return inputs[0];
       });
 
-      raster.on('beforeoperations', function(event) {
+      raster.once('beforeoperations', function(event) {
         expect(count).to.equal(0);
         expect(!!event).to.be(true);
         expect(event.extent).to.be.an('array');
@@ -235,7 +242,7 @@ describe('ol.source.Raster', function() {
         event.data.count = 0;
       });
 
-      raster.on('afteroperations', function(event) {
+      raster.once('afteroperations', function(event) {
         expect(event.data.count).to.equal(4);
         done();
       });
@@ -258,7 +265,7 @@ describe('ol.source.Raster', function() {
         return inputs[0];
       });
 
-      raster.on('afteroperations', function(event) {
+      raster.once('afteroperations', function(event) {
         expect(count).to.equal(4);
         expect(!!event).to.be(true);
         expect(event.extent).to.be.an('array');
@@ -280,7 +287,7 @@ describe('ol.source.Raster', function() {
         return inputs[0];
       });
 
-      raster.on('afteroperations', function(event) {
+      raster.once('afteroperations', function(event) {
         expect(event.data.message).to.equal('hello world');
         done();
       });

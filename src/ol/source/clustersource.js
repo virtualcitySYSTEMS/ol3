@@ -4,14 +4,12 @@
 goog.provide('ol.source.Cluster');
 
 goog.require('goog.asserts');
-goog.require('goog.events.EventType');
-goog.require('goog.object');
 goog.require('ol.Feature');
 goog.require('ol.coordinate');
+goog.require('ol.events.EventType');
 goog.require('ol.extent');
 goog.require('ol.geom.Point');
 goog.require('ol.source.Vector');
-
 
 
 /**
@@ -19,7 +17,7 @@ goog.require('ol.source.Vector');
  * Layer source to cluster vector data.
  *
  * @constructor
- * @param {olx.source.ClusterOptions} options
+ * @param {olx.source.ClusterOptions} options Constructor options.
  * @extends {ol.source.Vector}
  * @api
  */
@@ -28,7 +26,8 @@ ol.source.Cluster = function(options) {
     attributions: options.attributions,
     extent: options.extent,
     logo: options.logo,
-    projection: options.projection
+    projection: options.projection,
+    wrapX: options.wrapX
   });
 
   /**
@@ -55,7 +54,7 @@ ol.source.Cluster = function(options) {
    */
   this.source_ = options.source;
 
-  this.source_.on(goog.events.EventType.CHANGE,
+  this.source_.on(ol.events.EventType.CHANGE,
       ol.source.Cluster.prototype.onSourceChange_, this);
 };
 goog.inherits(ol.source.Cluster, ol.source.Vector);
@@ -111,13 +110,13 @@ ol.source.Cluster.prototype.cluster_ = function() {
   var features = this.source_.getFeatures();
 
   /**
-   * @type {Object.<string, boolean>}
+   * @type {!Object.<string, boolean>}
    */
   var clustered = {};
 
   for (var i = 0, ii = features.length; i < ii; i++) {
     var feature = features[i];
-    if (!goog.object.containsKey(clustered, goog.getUid(feature).toString())) {
+    if (!(goog.getUid(feature).toString() in clustered)) {
       var geometry = feature.getGeometry();
       goog.asserts.assert(geometry instanceof ol.geom.Point,
           'feature geometry is a ol.geom.Point instance');
@@ -129,7 +128,7 @@ ol.source.Cluster.prototype.cluster_ = function() {
       goog.asserts.assert(neighbors.length >= 1, 'at least one neighbor found');
       neighbors = neighbors.filter(function(neighbor) {
         var uid = goog.getUid(neighbor).toString();
-        if (!goog.object.containsKey(clustered, uid)) {
+        if (!(uid in clustered)) {
           clustered[uid] = true;
           return true;
         } else {
@@ -140,14 +139,14 @@ ol.source.Cluster.prototype.cluster_ = function() {
     }
   }
   goog.asserts.assert(
-      goog.object.getCount(clustered) == this.source_.getFeatures().length,
+      Object.keys(clustered).length == this.source_.getFeatures().length,
       'number of clustered equals number of features in the source');
 };
 
 
 /**
  * @param {Array.<ol.Feature>} features Features
- * @return {ol.Feature}
+ * @return {ol.Feature} The cluster feature.
  * @private
  */
 ol.source.Cluster.prototype.createCluster_ = function(features) {
