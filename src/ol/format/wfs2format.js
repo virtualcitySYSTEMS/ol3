@@ -7,8 +7,6 @@ goog.require('ol.format.XMLFeature');
 goog.require('ol.xml');
 goog.require('ol.format.CityGML');
 
-
-
 /**
  * @classdesc
  * Feature format for reading data in the WFS2 format.
@@ -44,7 +42,6 @@ ol.format.WFS2 = function() {
   goog.base(this);
 };
 goog.inherits(ol.format.WFS2, ol.format.XMLFeature);
-
 
 /**
  * @const
@@ -96,7 +93,7 @@ ol.format.WFS2.prototype.readFeaturesFromNode = function(node, opt_options) {
  */
 ol.format.WFS2.prototype.handleWFSMember = function(node, objectStack) {
   goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT,'node.nodeType should be ELEMENT');
-  var localName = ol.xml.getLocalName(node);
+  //var localName = ol.xml.getLocalName(node);
   var feature = ol.xml.pushParseAndPop([], this.cityGMLFormat_.TOP_LEVEL_FEATURE_PARSERS, node, objectStack, this.cityGMLFormat_);
   return feature;
 };
