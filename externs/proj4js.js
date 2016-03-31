@@ -4,10 +4,8 @@
  */
 
 
-/**
- * @constructor
- */
-var proj4 = function() {};
+
+var proj4 = function(source, dest, point){};
 
 
 /**
