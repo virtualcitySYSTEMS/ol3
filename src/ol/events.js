@@ -216,6 +216,7 @@ ol.events.removeListeners_ = function(target, type) {
  *     listener. Default is the `target`.
  * @param {boolean=} opt_once If true, add the listener as one-off listener.
  * @return {ol.events.Key} Unique key for the listener.
+ * @api
  */
 ol.events.listen = function(target, type, listener, opt_this, opt_once) {
   var listenerMap = ol.events.getListenerMap_(target);
@@ -265,6 +266,7 @@ ol.events.listen = function(target, type, listener, opt_this, opt_once) {
  * @param {Object=} opt_this Object referenced by the `this` keyword in the
  *     listener. Default is the `target`.
  * @return {ol.events.Key} Key for unlistenByKey.
+ * @api
  */
 ol.events.listenOnce = function(target, type, listener, opt_this) {
   return ol.events.listen(target, type, listener, opt_this, true);
