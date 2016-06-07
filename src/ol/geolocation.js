@@ -5,7 +5,6 @@ goog.provide('ol.GeolocationProperty');
 
 goog.require('ol.events');
 goog.require('ol.events.EventType');
-goog.require('ol.Coordinate');
 goog.require('ol.Object');
 goog.require('ol.geom.Geometry');
 goog.require('ol.geom.Polygon');
@@ -135,12 +134,12 @@ ol.Geolocation.prototype.handleTrackingChanged_ = function() {
   if (ol.has.GEOLOCATION) {
     var tracking = this.getTracking();
     if (tracking && this.watchId_ === undefined) {
-      this.watchId_ = goog.global.navigator.geolocation.watchPosition(
+      this.watchId_ = ol.global.navigator.geolocation.watchPosition(
           this.positionChange_.bind(this),
           this.positionError_.bind(this),
           this.getTrackingOptions());
     } else if (!tracking && this.watchId_ !== undefined) {
-      goog.global.navigator.geolocation.clearWatch(this.watchId_);
+      ol.global.navigator.geolocation.clearWatch(this.watchId_);
       this.watchId_ = undefined;
     }
   }

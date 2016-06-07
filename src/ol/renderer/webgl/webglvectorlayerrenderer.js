@@ -60,7 +60,7 @@ ol.renderer.webgl.VectorLayer = function(mapRenderer, vectorLayer) {
   /**
    * The last layer state.
    * @private
-   * @type {?ol.layer.LayerState}
+   * @type {?ol.LayerState}
    */
   this.layerState_ = null;
 
@@ -298,7 +298,7 @@ ol.renderer.webgl.VectorLayer.prototype.renderFeature = function(feature, resolu
     return false;
   }
   var loading = false;
-  if (goog.isArray(styles)) {
+  if (Array.isArray(styles)) {
     for (var i = 0, ii = styles.length; i < ii; ++i) {
       loading = ol.renderer.vector.renderFeature(
           replayGroup, feature, styles[i],

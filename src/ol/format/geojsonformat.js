@@ -211,7 +211,9 @@ ol.format.GeoJSON.writeGeometryCollectionGeometry_ = function(
   goog.asserts.assertInstanceof(geometry, ol.geom.GeometryCollection,
       'geometry should be an ol.geom.GeometryCollection');
   var geometries = geometry.getGeometriesArray().map(function(geometry) {
-    return ol.format.GeoJSON.writeGeometry_(geometry, opt_options);
+    var options = ol.object.assign({}, opt_options);
+    delete options.featureProjection;
+    return ol.format.GeoJSON.writeGeometry_(geometry, options);
   });
   return /** @type {GeoJSONGeometryCollection} */ ({
     type: 'GeometryCollection',
@@ -518,14 +520,13 @@ ol.format.GeoJSON.prototype.writeFeature;
  *
  * @param {ol.Feature} feature Feature.
  * @param {olx.format.WriteOptions=} opt_options Write options.
- * @return {GeoJSONObject} Object.
+ * @return {GeoJSONFeature} Object.
  * @api stable
  */
-ol.format.GeoJSON.prototype.writeFeatureObject = function(
-    feature, opt_options) {
+ol.format.GeoJSON.prototype.writeFeatureObject = function(feature, opt_options) {
   opt_options = this.adaptOptions(opt_options);
 
-  var object = /** @type {GeoJSONObject} */ ({
+  var object = /** @type {GeoJSONFeature} */ ({
     'type': 'Feature'
   });
   var id = feature.getId();

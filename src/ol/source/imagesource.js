@@ -3,24 +3,12 @@ goog.provide('ol.source.ImageEvent');
 
 goog.require('goog.asserts');
 goog.require('ol.events.Event');
-goog.require('ol.Attribution');
 goog.require('ol.ImageState');
 goog.require('ol.array');
 goog.require('ol.extent');
 goog.require('ol.proj');
 goog.require('ol.reproj.Image');
 goog.require('ol.source.Source');
-
-
-/**
- * @typedef {{attributions: (Array.<ol.Attribution>|undefined),
- *            extent: (null|ol.Extent|undefined),
- *            logo: (string|olx.LogoOptions|undefined),
- *            projection: ol.proj.ProjectionLike,
- *            resolutions: (Array.<number>|undefined),
- *            state: (ol.source.State|undefined)}}
- */
-ol.source.ImageOptions;
 
 
 /**
@@ -31,7 +19,7 @@ ol.source.ImageOptions;
  *
  * @constructor
  * @extends {ol.source.Source}
- * @param {ol.source.ImageOptions} options Single image source options.
+ * @param {ol.SourceImageOptions} options Single image source options.
  * @api
  */
 ol.source.Image = function(options) {

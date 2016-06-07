@@ -257,8 +257,6 @@ ol.renderer.canvas.VectorLayer.prototype.prepareFrame = function(frameState, lay
     return true;
   }
 
-  // FIXME dispose of old replayGroup in post render
-  goog.dispose(this.replayGroup_);
   this.replayGroup_ = null;
 
   this.dirty_ = false;
@@ -330,7 +328,7 @@ ol.renderer.canvas.VectorLayer.prototype.renderFeature = function(feature, resol
     return false;
   }
   var loading = false;
-  if (goog.isArray(styles)) {
+  if (Array.isArray(styles)) {
     for (var i = 0, ii = styles.length; i < ii; ++i) {
       loading = ol.renderer.vector.renderFeature(
           replayGroup, feature, styles[i],

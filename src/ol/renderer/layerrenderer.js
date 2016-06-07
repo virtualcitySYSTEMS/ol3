@@ -3,8 +3,8 @@ goog.provide('ol.renderer.Layer');
 goog.require('goog.asserts');
 goog.require('ol.events');
 goog.require('ol.events.EventType');
-goog.require('goog.functions');
 goog.require('ol');
+goog.require('ol.functions');
 goog.require('ol.ImageState');
 goog.require('ol.Observable');
 goog.require('ol.TileRange');
@@ -63,7 +63,7 @@ ol.renderer.Layer.prototype.forEachLayerAtPixel = function(pixel, frameState, ca
       frameState.pixelToCoordinateMatrix, coordinate, coordinate);
 
   var hasFeature = this.forEachFeatureAtCoordinate(
-      coordinate, frameState, goog.functions.TRUE, this);
+      coordinate, frameState, ol.functions.TRUE, this);
 
   if (hasFeature) {
     return callback.call(thisArg, this.layer_);
@@ -78,7 +78,7 @@ ol.renderer.Layer.prototype.forEachLayerAtPixel = function(pixel, frameState, ca
  * @param {olx.FrameState} frameState Frame state.
  * @return {boolean} Is there a feature at the given coordinate?
  */
-ol.renderer.Layer.prototype.hasFeatureAtCoordinate = goog.functions.FALSE;
+ol.renderer.Layer.prototype.hasFeatureAtCoordinate = ol.functions.FALSE;
 
 
 /**
@@ -181,18 +181,20 @@ ol.renderer.Layer.prototype.renderIfReadyAndVisible = function() {
  */
 ol.renderer.Layer.prototype.scheduleExpireCache = function(frameState, tileSource) {
   if (tileSource.canExpireCache()) {
+    /**
+     * @param {ol.source.Tile} tileSource Tile source.
+     * @param {ol.Map} map Map.
+     * @param {olx.FrameState} frameState Frame state.
+     */
+    var postRenderFunction = function(tileSource, map, frameState) {
+      var tileSourceKey = goog.getUid(tileSource).toString();
+      tileSource.expireCache(frameState.viewState.projection,
+                             frameState.usedTiles[tileSourceKey]);
+    }.bind(null, tileSource);
+
     frameState.postRenderFunctions.push(
-        /** @type {ol.PostRenderFunction} */ (goog.partial(
-            /**
-             * @param {ol.source.Tile} tileSource Tile source.
-             * @param {ol.Map} map Map.
-             * @param {olx.FrameState} frameState Frame state.
-             */
-            function(tileSource, map, frameState) {
-              var tileSourceKey = goog.getUid(tileSource).toString();
-              tileSource.expireCache(frameState.viewState.projection,
-                                     frameState.usedTiles[tileSourceKey]);
-            }, tileSource)));
+      /** @type {ol.PostRenderFunction} */ (postRenderFunction)
+    );
   }
 };
 

@@ -130,7 +130,7 @@ ol.format.GML2.prototype.innerBoundaryIsParser_ = function(node, objectStack) {
   if (flatLinearRing) {
     var flatLinearRings = /** @type {Array.<Array.<number>>} */
         (objectStack[objectStack.length - 1]);
-    goog.asserts.assert(goog.isArray(flatLinearRings),
+    goog.asserts.assert(Array.isArray(flatLinearRings),
         'flatLinearRings should be an array');
     goog.asserts.assert(flatLinearRings.length > 0,
         'flatLinearRings should have an array length larger than 0');
@@ -155,7 +155,7 @@ ol.format.GML2.prototype.outerBoundaryIsParser_ = function(node, objectStack) {
   if (flatLinearRing) {
     var flatLinearRings = /** @type {Array.<Array.<number>>} */
         (objectStack[objectStack.length - 1]);
-    goog.asserts.assert(goog.isArray(flatLinearRings),
+    goog.asserts.assert(Array.isArray(flatLinearRings),
         'flatLinearRings should be an array');
     goog.asserts.assert(flatLinearRings.length > 0,
         'flatLinearRings should have an array length larger than 0');
@@ -166,49 +166,49 @@ ol.format.GML2.prototype.outerBoundaryIsParser_ = function(node, objectStack) {
 
 /**
  * @const
- * @type {Object.<string, Object.<string, ol.xml.Parser>>}
+ * @type {Object.<string, Object.<string, ol.XmlParser>>}
  * @private
  */
-ol.format.GML2.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS_ = Object({
+ol.format.GML2.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS_ = {
   'http://www.opengis.net/gml' : {
     'coordinates': ol.xml.makeReplacer(
         ol.format.GML2.prototype.readFlatCoordinates_)
   }
-});
+};
 
 
 /**
  * @const
- * @type {Object.<string, Object.<string, ol.xml.Parser>>}
+ * @type {Object.<string, Object.<string, ol.XmlParser>>}
  * @private
  */
-ol.format.GML2.prototype.FLAT_LINEAR_RINGS_PARSERS_ = Object({
+ol.format.GML2.prototype.FLAT_LINEAR_RINGS_PARSERS_ = {
   'http://www.opengis.net/gml' : {
     'innerBoundaryIs': ol.format.GML2.prototype.innerBoundaryIsParser_,
     'outerBoundaryIs': ol.format.GML2.prototype.outerBoundaryIsParser_
   }
-});
+};
 
 
 /**
  * @const
- * @type {Object.<string, Object.<string, ol.xml.Parser>>}
+ * @type {Object.<string, Object.<string, ol.XmlParser>>}
  * @private
  */
-ol.format.GML2.prototype.BOX_PARSERS_ = Object({
+ol.format.GML2.prototype.BOX_PARSERS_ = {
   'http://www.opengis.net/gml' : {
     'coordinates': ol.xml.makeArrayPusher(
         ol.format.GML2.prototype.readFlatCoordinates_)
   }
-});
+};
 
 
 /**
  * @const
- * @type {Object.<string, Object.<string, ol.xml.Parser>>}
+ * @type {Object.<string, Object.<string, ol.XmlParser>>}
  * @private
  */
-ol.format.GML2.prototype.GEOMETRY_PARSERS_ = Object({
+ol.format.GML2.prototype.GEOMETRY_PARSERS_ = {
   'http://www.opengis.net/gml' : {
     'Point': ol.xml.makeReplacer(ol.format.GMLBase.prototype.readPoint),
     'MultiPoint': ol.xml.makeReplacer(
@@ -224,4 +224,4 @@ ol.format.GML2.prototype.GEOMETRY_PARSERS_ = Object({
         ol.format.GMLBase.prototype.readMultiPolygon),
     'Box': ol.xml.makeReplacer(ol.format.GML2.prototype.readBox_)
   }
-});
+};

@@ -1,7 +1,7 @@
 goog.provide('ol.geom.SimpleGeometry');
 
 goog.require('goog.asserts');
-goog.require('goog.functions');
+goog.require('ol.functions');
 goog.require('ol.extent');
 goog.require('ol.geom.Geometry');
 goog.require('ol.geom.GeometryLayout');
@@ -84,7 +84,7 @@ ol.geom.SimpleGeometry.getStrideForLayout = function(layout) {
 /**
  * @inheritDoc
  */
-ol.geom.SimpleGeometry.prototype.containsXY = goog.functions.FALSE;
+ol.geom.SimpleGeometry.prototype.containsXY = ol.functions.FALSE;
 
 
 /**
@@ -255,6 +255,22 @@ ol.geom.SimpleGeometry.prototype.setLayout = function(layout, coordinates, nesti
 ol.geom.SimpleGeometry.prototype.applyTransform = function(transformFn) {
   if (this.flatCoordinates) {
     transformFn(this.flatCoordinates, this.flatCoordinates, this.stride);
+    this.changed();
+  }
+};
+
+
+/**
+ * @inheritDoc
+ * @api
+ */
+ol.geom.SimpleGeometry.prototype.rotate = function(angle, anchor) {
+  var flatCoordinates = this.getFlatCoordinates();
+  if (flatCoordinates) {
+    var stride = this.getStride();
+    ol.geom.flat.transform.rotate(
+        flatCoordinates, 0, flatCoordinates.length,
+        stride, angle, anchor, flatCoordinates);
     this.changed();
   }
 };

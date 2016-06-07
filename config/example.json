@@ -12,11 +12,11 @@
     ],
     "externs": [
       "externs/bingmaps.js",
+      "externs/cartodb.js",
       "externs/bootstrap.js",
       "externs/closure-compiler.js",
       "externs/esrijson.js",
       "externs/example.js",
-      "externs/fastclick.js",
       "externs/geojson.js",
       "externs/jquery-1.9.js",
       "externs/proj4js.js",
@@ -25,7 +25,6 @@
     ],
     "define": [
       "goog.dom.ASSUME_STANDARDS_MODE=true",
-      "goog.json.USE_NATIVE_JSON=true",
       "goog.DEBUG=false"
     ],
     "jscomp_error": [
@@ -33,8 +32,8 @@
     ],
     "jscomp_off": [
       "useOfGoogBase",
-      "unnecessaryCasts",
       "lintChecks",
+      "analyzerChecks",
       "missingProvide",
       "unknownDefines"
     ],

@@ -1,15 +1,14 @@
 goog.provide('ol.RendererType');
 goog.provide('ol.renderer.Map');
 
-goog.require('goog.Disposable');
 goog.require('goog.asserts');
-goog.require('goog.dispose');
-goog.require('goog.functions');
 goog.require('goog.vec.Mat4');
 goog.require('ol');
+goog.require('ol.Disposable');
 goog.require('ol.events');
 goog.require('ol.events.EventType');
 goog.require('ol.extent');
+goog.require('ol.functions');
 goog.require('ol.layer.Layer');
 goog.require('ol.renderer.Layer');
 goog.require('ol.style.IconImageCache');
@@ -30,7 +29,7 @@ ol.RendererType = {
 
 /**
  * @constructor
- * @extends {goog.Disposable}
+ * @extends {ol.Disposable}
  * @param {Element} container Container.
  * @param {ol.Map} map Map.
  * @struct
@@ -59,7 +58,7 @@ ol.renderer.Map = function(container, map) {
   this.layerRendererListeners_ = {};
 
 };
-goog.inherits(ol.renderer.Map, goog.Disposable);
+goog.inherits(ol.renderer.Map, ol.Disposable);
 
 
 /**
@@ -95,9 +94,8 @@ ol.renderer.Map.prototype.createLayerRenderer = goog.abstractMethod;
  */
 ol.renderer.Map.prototype.disposeInternal = function() {
   for (var id in this.layerRenderers_) {
-    goog.dispose(this.layerRenderers_[id]);
+    this.layerRenderers_[id].dispose();
   }
-  goog.base(this, 'disposeInternal');
 };
 
 
@@ -234,7 +232,7 @@ ol.renderer.Map.prototype.forEachLayerAtPixel = function(pixel, frameState, call
  */
 ol.renderer.Map.prototype.hasFeatureAtCoordinate = function(coordinate, frameState, layerFilter, thisArg) {
   var hasFeature = this.forEachFeatureAtCoordinate(
-      coordinate, frameState, goog.functions.TRUE, this, layerFilter, thisArg);
+      coordinate, frameState, ol.functions.TRUE, this, layerFilter, thisArg);
 
   return hasFeature !== undefined;
 };
@@ -340,7 +338,7 @@ ol.renderer.Map.prototype.removeUnusedLayerRenderers_ = function(map, frameState
   var layerKey;
   for (layerKey in this.layerRenderers_) {
     if (!frameState || !(layerKey in frameState.layerStates)) {
-      goog.dispose(this.removeLayerRendererByKey_(layerKey));
+      this.removeLayerRendererByKey_(layerKey).dispose();
     }
   }
 };
@@ -375,8 +373,8 @@ ol.renderer.Map.prototype.scheduleRemoveUnusedLayerRenderers = function(frameSta
 
 
 /**
- * @param {ol.layer.LayerState} state1 First layer state.
- * @param {ol.layer.LayerState} state2 Second layer state.
+ * @param {ol.LayerState} state1 First layer state.
+ * @param {ol.LayerState} state2 Second layer state.
  * @return {number} The zIndex difference.
  */
 ol.renderer.Map.sortByZIndex = function(state1, state2) {

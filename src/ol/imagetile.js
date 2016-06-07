@@ -2,8 +2,6 @@ goog.provide('ol.ImageTile');
 
 goog.require('goog.asserts');
 goog.require('ol.Tile');
-goog.require('ol.TileCoord');
-goog.require('ol.TileLoadFunctionType');
 goog.require('ol.TileState');
 goog.require('ol.events');
 goog.require('ol.events.EventType');
@@ -70,8 +68,10 @@ ol.ImageTile.prototype.disposeInternal = function() {
     this.unlistenImage_();
   }
   if (this.interimTile) {
-    goog.dispose(this.interimTile);
+    this.interimTile.dispose();
   }
+  this.state = ol.TileState.ABORT;
+  this.changed();
   goog.base(this, 'disposeInternal');
 };
 

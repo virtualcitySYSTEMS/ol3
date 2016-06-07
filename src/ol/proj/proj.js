@@ -1,25 +1,13 @@
 goog.provide('ol.proj');
 goog.provide('ol.proj.METERS_PER_UNIT');
 goog.provide('ol.proj.Projection');
-goog.provide('ol.proj.ProjectionLike');
 goog.provide('ol.proj.Units');
 
 goog.require('goog.asserts');
 goog.require('ol');
-goog.require('ol.Extent');
-goog.require('ol.TransformFunction');
 goog.require('ol.extent');
 goog.require('ol.object');
 goog.require('ol.sphere.NORMAL');
-
-
-/**
- * A projection as {@link ol.proj.Projection}, SRS identifier string or
- * undefined.
- * @typedef {ol.proj.Projection|string|undefined} ol.proj.ProjectionLike
- * @api stable
- */
-ol.proj.ProjectionLike;
 
 
 /**
@@ -153,7 +141,7 @@ ol.proj.Projection = function(options) {
   goog.asserts.assert(code !== undefined,
       'Option "code" is required for constructing instance');
   if (ol.ENABLE_PROJ4JS) {
-    var proj4js = ol.proj.proj4_ || goog.global['proj4'];
+    var proj4js = ol.proj.proj4_ || ol.global['proj4'];
     if (typeof proj4js == 'function' && projections[code] === undefined) {
       var def = proj4js.defs(code);
       if (def !== undefined) {
@@ -684,7 +672,7 @@ ol.proj.get = function(projectionLike) {
     var code = projectionLike;
     projection = ol.proj.projections_[code];
     if (ol.ENABLE_PROJ4JS) {
-      var proj4js = ol.proj.proj4_ || goog.global['proj4'];
+      var proj4js = ol.proj.proj4_ || ol.global['proj4'];
       if (projection === undefined && typeof proj4js == 'function' &&
           proj4js.defs(code) !== undefined) {
         projection = new ol.proj.Projection({code: code});
@@ -706,6 +694,7 @@ ol.proj.get = function(projectionLike) {
  * @param {ol.proj.Projection} projection1 Projection 1.
  * @param {ol.proj.Projection} projection2 Projection 2.
  * @return {boolean} Equivalent.
+ * @api
  */
 ol.proj.equivalent = function(projection1, projection2) {
   if (projection1 === projection2) {

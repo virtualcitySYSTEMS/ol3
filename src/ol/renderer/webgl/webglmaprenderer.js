@@ -34,12 +34,6 @@ goog.require('ol.webgl.WebGLContextEventType');
 
 
 /**
- * @typedef {{magFilter: number, minFilter: number, texture: WebGLTexture}}
- */
-ol.renderer.webgl.TextureCacheEntry;
-
-
-/**
  * @constructor
  * @extends {ol.renderer.Map}
  * @param {Element} container Container.
@@ -110,7 +104,7 @@ ol.renderer.webgl.Map = function(container, map) {
 
   /**
    * @private
-   * @type {ol.structs.LRUCache.<ol.renderer.webgl.TextureCacheEntry|null>}
+   * @type {ol.structs.LRUCache.<ol.WebglTextureCacheEntry|null>}
    */
   this.textureCache_ = new ol.structs.LRUCache();
 
@@ -288,8 +282,6 @@ ol.renderer.webgl.Map.prototype.dispatchComposeEvent_ = function(type, frameStat
     var composeEvent = new ol.render.Event(type, map, vectorContext,
         frameState, null, context);
     map.dispatchEvent(composeEvent);
-
-    vectorContext.flush();
   }
 };
 
@@ -302,7 +294,7 @@ ol.renderer.webgl.Map.prototype.disposeInternal = function() {
   if (!gl.isContextLost()) {
     this.textureCache_.forEach(
         /**
-         * @param {?ol.renderer.webgl.TextureCacheEntry} textureCacheEntry
+         * @param {?ol.WebglTextureCacheEntry} textureCacheEntry
          *     Texture cache entry.
          */
         function(textureCacheEntry) {
@@ -311,7 +303,7 @@ ol.renderer.webgl.Map.prototype.disposeInternal = function() {
           }
         });
   }
-  goog.dispose(this.context_);
+  this.context_.dispose();
   goog.base(this, 'disposeInternal');
 };
 
@@ -451,7 +443,7 @@ ol.renderer.webgl.Map.prototype.renderFrame = function(frameState) {
 
   this.dispatchComposeEvent_(ol.render.EventType.PRECOMPOSE, frameState);
 
-  /** @type {Array.<ol.layer.LayerState>} */
+  /** @type {Array.<ol.LayerState>} */
   var layerStatesToDraw = [];
   var layerStatesArray = frameState.layerStatesArray;
   ol.array.stableSort(layerStatesArray, ol.renderer.Map.sortByZIndex);

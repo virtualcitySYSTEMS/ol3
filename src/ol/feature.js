@@ -1,5 +1,4 @@
 goog.provide('ol.Feature');
-goog.provide('ol.FeatureStyleFunction');
 
 goog.require('goog.asserts');
 goog.require('ol.events');
@@ -285,18 +284,6 @@ ol.Feature.prototype.setGeometryName = function(name) {
 
 
 /**
- * A function that returns an array of {@link ol.style.Style styles} given a
- * resolution. The `this` keyword inside the function references the
- * {@link ol.Feature} to be styled.
- *
- * @typedef {function(this: ol.Feature, number):
- *     (ol.style.Style|Array.<ol.style.Style>)}
- * @api stable
- */
-ol.FeatureStyleFunction;
-
-
-/**
  * Convert the provided object into a feature style function.  Functions passed
  * through unchanged.  Arrays of ol.style.Style or single style objects wrapped
  * in a new feature style function.
@@ -314,7 +301,7 @@ ol.Feature.createStyleFunction = function(obj) {
      * @type {Array.<ol.style.Style>}
      */
     var styles;
-    if (goog.isArray(obj)) {
+    if (Array.isArray(obj)) {
       styles = obj;
     } else {
       goog.asserts.assertInstanceof(obj, ol.style.Style,

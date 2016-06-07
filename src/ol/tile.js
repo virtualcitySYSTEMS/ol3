@@ -4,7 +4,6 @@ goog.provide('ol.TileState');
 goog.require('ol.events');
 goog.require('ol.events.EventTarget');
 goog.require('ol.events.EventType');
-goog.require('ol.TileCoord');
 
 
 /**
@@ -15,7 +14,8 @@ ol.TileState = {
   LOADING: 1,
   LOADED: 2,
   ERROR: 3,
-  EMPTY: 4
+  EMPTY: 4,
+  ABORT: 5
 };
 
 

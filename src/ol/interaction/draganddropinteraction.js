@@ -4,7 +4,7 @@ goog.provide('ol.interaction.DragAndDrop');
 goog.provide('ol.interaction.DragAndDropEvent');
 
 goog.require('goog.asserts');
-goog.require('goog.functions');
+goog.require('ol.functions');
 goog.require('ol.events');
 goog.require('ol.events.Event');
 goog.require('ol.events.EventType');
@@ -72,7 +72,7 @@ ol.interaction.DragAndDrop.handleDrop_ = function(event) {
     file = files.item(i);
     var reader = new FileReader();
     reader.addEventListener(ol.events.EventType.LOAD,
-        goog.partial(this.handleResult_, file).bind(this));
+        this.handleResult_.bind(this, file));
     reader.readAsText(file);
   }
 };
@@ -134,7 +134,7 @@ ol.interaction.DragAndDrop.prototype.handleResult_ = function(file, event) {
  * @this {ol.interaction.DragAndDrop}
  * @api
  */
-ol.interaction.DragAndDrop.handleEvent = goog.functions.TRUE;
+ol.interaction.DragAndDrop.handleEvent = ol.functions.TRUE;
 
 
 /**

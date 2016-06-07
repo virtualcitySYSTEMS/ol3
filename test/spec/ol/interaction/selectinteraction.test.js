@@ -63,7 +63,7 @@ describe('ol.interaction.Select', function() {
   });
 
   afterEach(function() {
-    goog.dispose(map);
+    map.dispose();
     document.body.removeChild(target);
   });
 
@@ -78,11 +78,11 @@ describe('ol.interaction.Select', function() {
   function simulateEvent(type, x, y, opt_shiftKey) {
     var viewport = map.getViewport();
     // calculated in case body has top < 0 (test runner with small window)
-    var position = goog.style.getClientPosition(viewport);
+    var position = viewport.getBoundingClientRect();
     var shiftKey = opt_shiftKey !== undefined ? opt_shiftKey : false;
     var event = new ol.pointer.PointerEvent(type, {
-      clientX: position.x + x + width / 2,
-      clientY: position.y + y + height / 2,
+      clientX: position.left + x + width / 2,
+      clientY: position.top + y + height / 2,
       shiftKey: shiftKey
     });
     map.handleMapBrowserEvent(new ol.MapBrowserPointerEvent(type, map, event));
@@ -181,6 +181,16 @@ describe('ol.interaction.Select', function() {
 
       var features = select.getFeatures();
       expect(features.getLength()).to.equal(4);
+      expect(select.getLayer(features.item(0))).to.equal(layer);
+
+      // Select again to make sure the internal layer isn't reported
+      simulateEvent(ol.MapBrowserEvent.EventType.SINGLECLICK, 10, -20);
+
+      expect(listenerSpy.callCount).to.be(2);
+
+      features = select.getFeatures();
+      expect(features.getLength()).to.equal(4);
+      expect(select.getLayer(features.item(0))).to.equal(layer);
     });
   });
 
@@ -312,6 +322,8 @@ describe('ol.interaction.Select', function() {
       interaction.on('select', listenerSpy);
 
       simulateEvent(ol.MapBrowserEvent.EventType.SINGLECLICK, 10, -20);
+      // Select again to make sure that the internal layer doesn't get reported.
+      simulateEvent(ol.MapBrowserEvent.EventType.SINGLECLICK, 10, -20);
     });
   });
 
@@ -391,8 +403,6 @@ describe('ol.interaction.Select', function() {
   });
 });
 
-goog.require('goog.dispose');
-goog.require('goog.style');
 goog.require('ol.Collection');
 goog.require('ol.Feature');
 goog.require('ol.Map');

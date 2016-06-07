@@ -2,7 +2,7 @@ goog.provide('ol.interaction.DragRotate');
 
 goog.require('ol');
 goog.require('ol.ViewHint');
-goog.require('ol.events.ConditionType');
+goog.require('ol.functions');
 goog.require('ol.events.condition');
 goog.require('ol.interaction.Interaction');
 goog.require('ol.interaction.Pointer');
@@ -128,4 +128,4 @@ ol.interaction.DragRotate.handleDownEvent_ = function(mapBrowserEvent) {
 /**
  * @inheritDoc
  */
-ol.interaction.DragRotate.prototype.shouldStopEvent = goog.functions.FALSE;
+ol.interaction.DragRotate.prototype.shouldStopEvent = ol.functions.FALSE;

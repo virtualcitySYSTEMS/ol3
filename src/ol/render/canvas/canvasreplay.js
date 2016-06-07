@@ -779,7 +779,7 @@ ol.render.canvas.ImageReplay.prototype.drawCoordinates_ = function(flatCoordinat
 /**
  * @inheritDoc
  */
-ol.render.canvas.ImageReplay.prototype.drawPointGeometry = function(pointGeometry, feature) {
+ol.render.canvas.ImageReplay.prototype.drawPoint = function(pointGeometry, feature) {
   if (!this.image_) {
     return;
   }
@@ -831,7 +831,7 @@ ol.render.canvas.ImageReplay.prototype.drawPointGeometry = function(pointGeometr
 /**
  * @inheritDoc
  */
-ol.render.canvas.ImageReplay.prototype.drawMultiPointGeometry = function(multiPointGeometry, feature) {
+ol.render.canvas.ImageReplay.prototype.drawMultiPoint = function(multiPointGeometry, feature) {
   if (!this.image_) {
     return;
   }
@@ -1064,7 +1064,7 @@ ol.render.canvas.LineStringReplay.prototype.setStrokeStyle_ = function() {
 /**
  * @inheritDoc
  */
-ol.render.canvas.LineStringReplay.prototype.drawLineStringGeometry = function(lineStringGeometry, feature) {
+ol.render.canvas.LineStringReplay.prototype.drawLineString = function(lineStringGeometry, feature) {
   var state = this.state_;
   goog.asserts.assert(state, 'state should not be null');
   var strokeStyle = state.strokeStyle;
@@ -1091,7 +1091,7 @@ ol.render.canvas.LineStringReplay.prototype.drawLineStringGeometry = function(li
 /**
  * @inheritDoc
  */
-ol.render.canvas.LineStringReplay.prototype.drawMultiLineStringGeometry = function(multiLineStringGeometry, feature) {
+ol.render.canvas.LineStringReplay.prototype.drawMultiLineString = function(multiLineStringGeometry, feature) {
   var state = this.state_;
   goog.asserts.assert(state, 'state should not be null');
   var strokeStyle = state.strokeStyle;
@@ -1267,7 +1267,7 @@ ol.render.canvas.PolygonReplay.prototype.drawFlatCoordinatess_ = function(flatCo
 /**
  * @inheritDoc
  */
-ol.render.canvas.PolygonReplay.prototype.drawCircleGeometry = function(circleGeometry, feature) {
+ol.render.canvas.PolygonReplay.prototype.drawCircle = function(circleGeometry, feature) {
   var state = this.state_;
   goog.asserts.assert(state, 'state should not be null');
   var fillStyle = state.fillStyle;
@@ -1319,7 +1319,7 @@ ol.render.canvas.PolygonReplay.prototype.drawCircleGeometry = function(circleGeo
 /**
  * @inheritDoc
  */
-ol.render.canvas.PolygonReplay.prototype.drawPolygonGeometry = function(polygonGeometry, feature) {
+ol.render.canvas.PolygonReplay.prototype.drawPolygon = function(polygonGeometry, feature) {
   var state = this.state_;
   goog.asserts.assert(state, 'state should not be null');
   var fillStyle = state.fillStyle;
@@ -1354,7 +1354,7 @@ ol.render.canvas.PolygonReplay.prototype.drawPolygonGeometry = function(polygonG
 /**
  * @inheritDoc
  */
-ol.render.canvas.PolygonReplay.prototype.drawMultiPolygonGeometry = function(multiPolygonGeometry, feature) {
+ol.render.canvas.PolygonReplay.prototype.drawMultiPolygon = function(multiPolygonGeometry, feature) {
   var state = this.state_;
   goog.asserts.assert(state, 'state should not be null');
   var fillStyle = state.fillStyle;
@@ -1538,19 +1538,19 @@ ol.render.canvas.TextReplay = function(tolerance, maxExtent, resolution) {
 
   /**
    * @private
-   * @type {?ol.render.canvas.FillState}
+   * @type {?ol.CanvasFillState}
    */
   this.replayFillState_ = null;
 
   /**
    * @private
-   * @type {?ol.render.canvas.StrokeState}
+   * @type {?ol.CanvasStrokeState}
    */
   this.replayStrokeState_ = null;
 
   /**
    * @private
-   * @type {?ol.render.canvas.TextState}
+   * @type {?ol.CanvasTextState}
    */
   this.replayTextState_ = null;
 
@@ -1586,19 +1586,19 @@ ol.render.canvas.TextReplay = function(tolerance, maxExtent, resolution) {
 
   /**
    * @private
-   * @type {?ol.render.canvas.FillState}
+   * @type {?ol.CanvasFillState}
    */
   this.textFillState_ = null;
 
   /**
    * @private
-   * @type {?ol.render.canvas.StrokeState}
+   * @type {?ol.CanvasStrokeState}
    */
   this.textStrokeState_ = null;
 
   /**
    * @private
-   * @type {?ol.render.canvas.TextState}
+   * @type {?ol.CanvasTextState}
    */
   this.textState_ = null;
 
@@ -1638,7 +1638,7 @@ ol.render.canvas.TextReplay.prototype.drawText = function(flatCoordinates, offse
 
 
 /**
- * @param {ol.render.canvas.FillState} fillState Fill state.
+ * @param {ol.CanvasFillState} fillState Fill state.
  * @private
  */
 ol.render.canvas.TextReplay.prototype.setReplayFillState_ = function(fillState) {
@@ -1662,7 +1662,7 @@ ol.render.canvas.TextReplay.prototype.setReplayFillState_ = function(fillState) 
 
 
 /**
- * @param {ol.render.canvas.StrokeState} strokeState Stroke state.
+ * @param {ol.CanvasStrokeState} strokeState Stroke state.
  * @private
  */
 ol.render.canvas.TextReplay.prototype.setReplayStrokeState_ = function(strokeState) {
@@ -1704,7 +1704,7 @@ ol.render.canvas.TextReplay.prototype.setReplayStrokeState_ = function(strokeSta
 
 
 /**
- * @param {ol.render.canvas.TextState} textState Text state.
+ * @param {ol.CanvasTextState} textState Text state.
  * @private
  */
 ol.render.canvas.TextReplay.prototype.setReplayTextState_ = function(textState) {
@@ -1995,41 +1995,41 @@ ol.render.canvas.ReplayGroup.prototype.isEmpty = function() {
  * @param {number} viewRotation View rotation.
  * @param {Object.<string, boolean>} skippedFeaturesHash Ids of features
  *     to skip.
- * @param {boolean=} opt_clip Clip at `maxExtent`. Default is true.
+ * @param {Array.<ol.render.ReplayType>=} opt_replayTypes Ordered replay types
+ *     to replay. Default is {@link ol.render.REPLAY_ORDER}
  */
 ol.render.canvas.ReplayGroup.prototype.replay = function(context, pixelRatio,
-    transform, viewRotation, skippedFeaturesHash, opt_clip) {
+    transform, viewRotation, skippedFeaturesHash, opt_replayTypes) {
 
   /** @type {Array.<number>} */
   var zs = Object.keys(this.replaysByZIndex_).map(Number);
   zs.sort(ol.array.numberSafeCompareFunction);
 
-  if (opt_clip !== false) {
-    // setup clipping so that the parts of over-simplified geometries are not
-    // visible outside the current extent when panning
-    var maxExtent = this.maxExtent_;
-    var minX = maxExtent[0];
-    var minY = maxExtent[1];
-    var maxX = maxExtent[2];
-    var maxY = maxExtent[3];
-    var flatClipCoords = [minX, minY, minX, maxY, maxX, maxY, maxX, minY];
-    ol.geom.flat.transform.transform2D(
-        flatClipCoords, 0, 8, 2, transform, flatClipCoords);
-    context.save();
-    context.beginPath();
-    context.moveTo(flatClipCoords[0], flatClipCoords[1]);
-    context.lineTo(flatClipCoords[2], flatClipCoords[3]);
-    context.lineTo(flatClipCoords[4], flatClipCoords[5]);
-    context.lineTo(flatClipCoords[6], flatClipCoords[7]);
-    context.closePath();
-    context.clip();
-  }
+  // setup clipping so that the parts of over-simplified geometries are not
+  // visible outside the current extent when panning
+  var maxExtent = this.maxExtent_;
+  var minX = maxExtent[0];
+  var minY = maxExtent[1];
+  var maxX = maxExtent[2];
+  var maxY = maxExtent[3];
+  var flatClipCoords = [minX, minY, minX, maxY, maxX, maxY, maxX, minY];
+  ol.geom.flat.transform.transform2D(
+      flatClipCoords, 0, 8, 2, transform, flatClipCoords);
+  context.save();
+  context.beginPath();
+  context.moveTo(flatClipCoords[0], flatClipCoords[1]);
+  context.lineTo(flatClipCoords[2], flatClipCoords[3]);
+  context.lineTo(flatClipCoords[4], flatClipCoords[5]);
+  context.lineTo(flatClipCoords[6], flatClipCoords[7]);
+  context.closePath();
+  context.clip();
 
+  var replayTypes = opt_replayTypes ? opt_replayTypes : ol.render.REPLAY_ORDER;
   var i, ii, j, jj, replays, replay;
   for (i = 0, ii = zs.length; i < ii; ++i) {
     replays = this.replaysByZIndex_[zs[i].toString()];
-    for (j = 0, jj = ol.render.REPLAY_ORDER.length; j < jj; ++j) {
-      replay = replays[ol.render.REPLAY_ORDER[j]];
+    for (j = 0, jj = replayTypes.length; j < jj; ++j) {
+      replay = replays[replayTypes[j]];
       if (replay !== undefined) {
         replay.replay(context, pixelRatio, transform, viewRotation,
             skippedFeaturesHash);

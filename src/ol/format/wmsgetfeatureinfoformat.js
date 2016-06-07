@@ -75,7 +75,7 @@ ol.format.WMSGetFeatureInfo.prototype.readFeatures_ = function(node, objectStack
   node.setAttribute('namespaceURI', this.featureNS_);
   goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT,
       'node.nodeType should be ELEMENT');
-  var localName = ol.xml.getLocalName(node);
+  var localName = node.localName;
   /** @type {Array.<ol.Feature>} */
   var features = [];
   if (node.childNodes.length === 0) {
@@ -149,10 +149,7 @@ ol.format.WMSGetFeatureInfo.prototype.readFeatures;
  * @inheritDoc
  */
 ol.format.WMSGetFeatureInfo.prototype.readFeaturesFromNode = function(node, opt_options) {
-  var options = {
-    'featureType': this.featureType,
-    'featureNS': this.featureNS
-  };
+  var options = {};
   if (opt_options) {
     ol.object.assign(options, this.getReadOptions(node, opt_options));
   }

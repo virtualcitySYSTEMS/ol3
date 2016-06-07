@@ -93,6 +93,17 @@ goog.inherits(ol.renderer.dom.VectorLayer, ol.renderer.dom.Layer);
 /**
  * @inheritDoc
  */
+ol.renderer.dom.VectorLayer.prototype.clearFrame = function() {
+  // Clear the canvas
+  var canvas = this.context_.canvas;
+  canvas.width = canvas.width;
+  this.renderedRevision_ = 0;
+};
+
+
+/**
+ * @inheritDoc
+ */
 ol.renderer.dom.VectorLayer.prototype.composeFrame = function(frameState, layerState) {
 
   var vectorLayer = /** @type {ol.layer.Vector} */ (this.getLayer());
@@ -164,7 +175,6 @@ ol.renderer.dom.VectorLayer.prototype.dispatchEvent_ = function(type, frameState
     var event = new ol.render.Event(type, layer, render, frameState,
         context, null);
     layer.dispatchEvent(event);
-    render.flush();
   }
 };
 
@@ -257,8 +267,6 @@ ol.renderer.dom.VectorLayer.prototype.prepareFrame = function(frameState, layerS
     return true;
   }
 
-  // FIXME dispose of old replayGroup in post render
-  goog.dispose(this.replayGroup_);
   this.replayGroup_ = null;
 
   this.dirty_ = false;
@@ -330,7 +338,7 @@ ol.renderer.dom.VectorLayer.prototype.renderFeature = function(feature, resoluti
     return false;
   }
   var loading = false;
-  if (goog.isArray(styles)) {
+  if (Array.isArray(styles)) {
     for (var i = 0, ii = styles.length; i < ii; ++i) {
       loading = ol.renderer.vector.renderFeature(
           replayGroup, feature, styles[i],

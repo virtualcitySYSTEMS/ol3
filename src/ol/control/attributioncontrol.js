@@ -4,7 +4,6 @@ goog.provide('ol.control.Attribution');
 
 goog.require('goog.asserts');
 goog.require('goog.dom');
-goog.require('goog.dom.classlist');
 goog.require('goog.style');
 goog.require('ol');
 goog.require('ol.Attribution');
@@ -275,9 +274,9 @@ ol.control.Attribution.prototype.updateElement_ = function(frameState) {
   }
   if (renderVisible &&
       ol.object.isEmpty(this.attributionElementRenderedVisible_)) {
-    goog.dom.classlist.add(this.element, 'ol-logo-only');
+    this.element.classList.add('ol-logo-only');
   } else {
-    goog.dom.classlist.remove(this.element, 'ol-logo-only');
+    this.element.classList.remove('ol-logo-only');
   }
 
   this.insertLogos_(frameState);
@@ -304,10 +303,14 @@ ol.control.Attribution.prototype.insertLogos_ = function(frameState) {
 
   var image, logoElement, logoKey;
   for (logoKey in logos) {
+    var logoValue = logos[logoKey];
+    if (logoValue instanceof HTMLElement) {
+      this.logoLi_.appendChild(logoValue);
+      logoElements[logoKey] = logoValue;
+    }
     if (!(logoKey in logoElements)) {
       image = new Image();
       image.src = logoKey;
-      var logoValue = logos[logoKey];
       if (logoValue === '') {
         logoElement = image;
       } else {
@@ -340,7 +343,7 @@ ol.control.Attribution.prototype.handleClick_ = function(event) {
  * @private
  */
 ol.control.Attribution.prototype.handleToggle_ = function() {
-  goog.dom.classlist.toggle(this.element, 'ol-collapsed');
+  this.element.classList.toggle('ol-collapsed');
   if (this.collapsed_) {
     goog.dom.replaceNode(this.collapseLabel_, this.label_);
   } else {
@@ -370,7 +373,7 @@ ol.control.Attribution.prototype.setCollapsible = function(collapsible) {
     return;
   }
   this.collapsible_ = collapsible;
-  goog.dom.classlist.toggle(this.element, 'ol-uncollapsible');
+  this.element.classList.toggle('ol-uncollapsible');
   if (!collapsible && this.collapsed_) {
     this.handleToggle_();
   }

@@ -49,9 +49,60 @@ ol.source.TileUTFGrid = function(options) {
    */
   this.template_ = undefined;
 
-  ol.net.jsonp(options.url, this.handleTileJSONResponse.bind(this));
+  /**
+   * @private
+   * @type {boolean}
+   */
+  this.jsonp_ = options.jsonp || false;
+
+  if (options.url) {
+    if (this.jsonp_) {
+      ol.net.jsonp(options.url, this.handleTileJSONResponse.bind(this),
+          this.handleTileJSONError.bind(this));
+    } else {
+      var client = new XMLHttpRequest();
+      client.addEventListener('load', this.onXHRLoad_.bind(this));
+      client.addEventListener('error', this.onXHRError_.bind(this));
+      client.open('GET', options.url);
+      client.send();
+    }
+  } else if (options.tileJSON) {
+    this.handleTileJSONResponse(options.tileJSON);
+  } else {
+    goog.asserts.fail('Either url or tileJSON options must be provided');
+  }
 };
 goog.inherits(ol.source.TileUTFGrid, ol.source.Tile);
+
+
+/**
+ * @private
+ * @param {Event} event The load event.
+ */
+ol.source.TileUTFGrid.prototype.onXHRLoad_ = function(event) {
+  var client = /** @type {XMLHttpRequest} */ (event.target);
+  if (client.status >= 200 && client.status < 300) {
+    var response;
+    try {
+      response = /** @type {TileJSON} */(JSON.parse(client.responseText));
+    } catch (err) {
+      this.handleTileJSONError();
+      return;
+    }
+    this.handleTileJSONResponse(response);
+  } else {
+    this.handleTileJSONError();
+  }
+};
+
+
+/**
+ * @private
+ * @param {Event} event The error event.
+ */
+ol.source.TileUTFGrid.prototype.onXHRError_ = function(event) {
+  this.handleTileJSONError();
+};
 
 
 /**
@@ -70,7 +121,7 @@ ol.source.TileUTFGrid.prototype.getTemplate = function() {
  * in case of an error).
  * @param {ol.Coordinate} coordinate Coordinate.
  * @param {number} resolution Resolution.
- * @param {function(this: T, Object)} callback Callback.
+ * @param {function(this: T, *)} callback Callback.
  * @param {T=} opt_this The object to use as `this` in the callback.
  * @param {boolean=} opt_request If `true` the callback is always async.
  *                               The tile data is requested if not yet loaded.
@@ -94,6 +145,14 @@ ol.source.TileUTFGrid.prototype.forDataAtCoordinateAndResolution = function(
       callback.call(opt_this, null);
     }
   }
+};
+
+
+/**
+ * @protected
+ */
+ol.source.TileUTFGrid.prototype.handleTileJSONError = function() {
+  this.setState(ol.source.State.ERROR);
 };
 
 
@@ -179,7 +238,8 @@ ol.source.TileUTFGrid.prototype.getTile = function(z, x, y, pixelRatio, projecti
         tileUrl !== undefined ? ol.TileState.IDLE : ol.TileState.EMPTY,
         tileUrl !== undefined ? tileUrl : '',
         this.tileGrid.getTileCoordExtent(tileCoord),
-        this.preemptive_);
+        this.preemptive_,
+        this.jsonp_);
     this.tileCache.set(tileCoordKey, tile);
     return tile;
   }
@@ -205,9 +265,10 @@ ol.source.TileUTFGrid.prototype.useTile = function(z, x, y) {
  * @param {string} src Image source URI.
  * @param {ol.Extent} extent Extent of the tile.
  * @param {boolean} preemptive Load the tile when visible (before it's needed).
+ * @param {boolean} jsonp Load the tile as a script.
  * @private
  */
-ol.source.TileUTFGridTile_ = function(tileCoord, state, src, extent, preemptive) {
+ol.source.TileUTFGridTile_ = function(tileCoord, state, src, extent, preemptive, jsonp) {
 
   goog.base(this, tileCoord, state);
 
@@ -246,6 +307,14 @@ ol.source.TileUTFGridTile_ = function(tileCoord, state, src, extent, preemptive)
    * @type {Object.<string, Object>|undefined}
    */
   this.data_ = null;
+
+
+  /**
+   * @private
+   * @type {boolean}
+   */
+  this.jsonp_ = jsonp;
+
 };
 goog.inherits(ol.source.TileUTFGridTile_, ol.Tile);
 
@@ -264,10 +333,10 @@ ol.source.TileUTFGridTile_.prototype.getImage = function(opt_context) {
 /**
  * Synchronously returns data at given coordinate (if available).
  * @param {ol.Coordinate} coordinate Coordinate.
- * @return {Object} The data.
+ * @return {*} The data.
  */
 ol.source.TileUTFGridTile_.prototype.getData = function(coordinate) {
-  if (!this.grid_ || !this.keys_ || !this.data_) {
+  if (!this.grid_ || !this.keys_) {
     return null;
   }
   var xRelative = (coordinate[0] - this.extent_[0]) /
@@ -290,7 +359,16 @@ ol.source.TileUTFGridTile_.prototype.getData = function(coordinate) {
   }
   code -= 32;
 
-  return (code in this.keys_) ? this.data_[this.keys_[code]] : null;
+  var data = null;
+  if (code in this.keys_) {
+    var id = this.keys_[code];
+    if (this.data_ && id in this.data_) {
+      data = this.data_[id];
+    } else {
+      data = id;
+    }
+  }
+  return data;
 };
 
 
@@ -298,7 +376,7 @@ ol.source.TileUTFGridTile_.prototype.getData = function(coordinate) {
  * Calls the callback (synchronously by default) with the available data
  * for given coordinate (or `null` if not yet loaded).
  * @param {ol.Coordinate} coordinate Coordinate.
- * @param {function(this: T, Object)} callback Callback.
+ * @param {function(this: T, *)} callback Callback.
  * @param {T=} opt_this The object to use as `this` in the callback.
  * @param {boolean=} opt_request If `true` the callback is always async.
  *                               The tile data is requested if not yet loaded.
@@ -359,9 +437,47 @@ ol.source.TileUTFGridTile_.prototype.handleLoad_ = function(json) {
 ol.source.TileUTFGridTile_.prototype.loadInternal_ = function() {
   if (this.state == ol.TileState.IDLE) {
     this.state = ol.TileState.LOADING;
-    ol.net.jsonp(this.src_, this.handleLoad_.bind(this),
-        this.handleError_.bind(this));
+    if (this.jsonp_) {
+      ol.net.jsonp(this.src_, this.handleLoad_.bind(this),
+          this.handleError_.bind(this));
+    } else {
+      var client = new XMLHttpRequest();
+      client.addEventListener('load', this.onXHRLoad_.bind(this));
+      client.addEventListener('error', this.onXHRError_.bind(this));
+      client.open('GET', this.src_);
+      client.send();
+    }
   }
+};
+
+
+/**
+ * @private
+ * @param {Event} event The load event.
+ */
+ol.source.TileUTFGridTile_.prototype.onXHRLoad_ = function(event) {
+  var client = /** @type {XMLHttpRequest} */ (event.target);
+  if (client.status >= 200 && client.status < 300) {
+    var response;
+    try {
+      response = /** @type {!UTFGridJSON} */(JSON.parse(client.responseText));
+    } catch (err) {
+      this.handleError_();
+      return;
+    }
+    this.handleLoad_(response);
+  } else {
+    this.handleError_();
+  }
+};
+
+
+/**
+ * @private
+ * @param {Event} event The error event.
+ */
+ol.source.TileUTFGridTile_.prototype.onXHRError_ = function(event) {
+  this.handleError_();
 };
 
 

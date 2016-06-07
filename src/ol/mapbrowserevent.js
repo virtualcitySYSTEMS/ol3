@@ -5,9 +5,7 @@ goog.provide('ol.MapBrowserPointerEvent');
 
 goog.require('goog.asserts');
 goog.require('ol');
-goog.require('ol.Coordinate');
 goog.require('ol.MapEvent');
-goog.require('ol.Pixel');
 goog.require('ol.events');
 goog.require('ol.events.EventTarget');
 goog.require('ol.events.EventType');
@@ -223,14 +221,14 @@ ol.MapBrowserEventHandler.prototype.emulateClick_ = function(pointerEvent) {
   this.dispatchEvent(newEvent);
   if (this.clickTimeoutId_ !== 0) {
     // double-click
-    goog.global.clearTimeout(this.clickTimeoutId_);
+    ol.global.clearTimeout(this.clickTimeoutId_);
     this.clickTimeoutId_ = 0;
     newEvent = new ol.MapBrowserPointerEvent(
         ol.MapBrowserEvent.EventType.DBLCLICK, this.map_, pointerEvent);
     this.dispatchEvent(newEvent);
   } else {
     // click
-    this.clickTimeoutId_ = goog.global.setTimeout(function() {
+    this.clickTimeoutId_ = ol.global.setTimeout(function() {
       this.clickTimeoutId_ = 0;
       var newEvent = new ol.MapBrowserPointerEvent(
           ol.MapBrowserEvent.EventType.SINGLECLICK, this.map_, pointerEvent);
@@ -285,7 +283,7 @@ ol.MapBrowserEventHandler.prototype.handlePointerUp_ = function(pointerEvent) {
     this.dragListenerKeys_.length = 0;
     this.dragging_ = false;
     this.down_ = null;
-    goog.dispose(this.documentPointerEventHandler_);
+    this.documentPointerEventHandler_.dispose();
     this.documentPointerEventHandler_ = null;
   }
 };
@@ -416,11 +414,11 @@ ol.MapBrowserEventHandler.prototype.disposeInternal = function() {
   this.dragListenerKeys_.length = 0;
 
   if (this.documentPointerEventHandler_) {
-    goog.dispose(this.documentPointerEventHandler_);
+    this.documentPointerEventHandler_.dispose();
     this.documentPointerEventHandler_ = null;
   }
   if (this.pointerEventHandler_) {
-    goog.dispose(this.pointerEventHandler_);
+    this.pointerEventHandler_.dispose();
     this.pointerEventHandler_ = null;
   }
   goog.base(this, 'disposeInternal');
