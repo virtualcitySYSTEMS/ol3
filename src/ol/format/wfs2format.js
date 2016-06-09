@@ -16,7 +16,7 @@ goog.require('ol.format.CityGML');
  * @extends {ol.format.XMLFeature}
  * @api stable
  */
-ol.format.WFS2 = function() {
+ol.format.WFS2 = function () {
 
   /**
    * @private
@@ -75,7 +75,7 @@ ol.format.WFS2.prototype.readFeatures;
 /**
  * @inheritDoc
  */
-ol.format.WFS2.prototype.readFeaturesFromNode = function(node, opt_options) {
+ol.format.WFS2.prototype.readFeaturesFromNode = function (node, opt_options) {
 
   var objectStack = [];
 
@@ -91,9 +91,293 @@ ol.format.WFS2.prototype.readFeaturesFromNode = function(node, opt_options) {
  * @param {Array.<*>} objectStack Object stack.
  * @return {Array.<ol.Feature>} Features.
  */
-ol.format.WFS2.prototype.handleWFSMember = function(node, objectStack) {
-  goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT,'node.nodeType should be ELEMENT');
+ol.format.WFS2.prototype.handleWFSMember = function (node, objectStack) {
+  goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT, 'node.nodeType should be ELEMENT');
   //var localName = ol.xml.getLocalName(node);
   var feature = ol.xml.pushParseAndPop([], this.cityGMLFormat_.TOP_LEVEL_FEATURE_PARSERS, node, objectStack, this.cityGMLFormat_);
   return feature;
+};
+
+
+/**
+ * Encode format as WFS `GetFeature` and return the Node.
+ *
+ * @param {olx.format.WFSWriteGetFeatureOptions} options Options.
+ * @return {Node} Result.
+ * @api stable
+ */
+ol.format.WFS2.prototype.writeGetFeature = function (options) {
+  var node = ol.xml.createElementNS('http://www.opengis.net/wfs/2.0',
+    'GetFeature');
+  node.setAttribute('service', 'WFS');
+  node.setAttribute('version', '2.0.0');
+  var filter;
+  if (options) {
+    if (options.handle) {
+      node.setAttribute('handle', options.handle);
+    }
+    if (options.outputFormat) {
+      node.setAttribute('outputFormat', options.outputFormat);
+    }
+    if (options.maxFeatures !== undefined) {
+      node.setAttribute('maxFeatures', options.maxFeatures);
+    }
+    if (options.resultType) {
+      node.setAttribute('resultType', options.resultType);
+    }
+    if (options.startIndex !== undefined) {
+      node.setAttribute('startIndex', options.startIndex);
+    }
+    if (options.count !== undefined) {
+      node.setAttribute('count', options.count);
+    }
+    filter = options.filter;
+    if (options.bbox) {
+      goog.asserts.assert(options.geometryName,
+        'geometryName must be set when using bbox filter');
+      var bbox = ol.format.ogc.filter.bbox(
+        options.geometryName, options.bbox, options.srsName);
+      if (filter) {
+        // if bbox and filter are both set, combine the two into a single filter
+        filter = ol.format.ogc.filter.and(filter, bbox);
+      } else {
+        filter = bbox;
+      }
+    }
+  }
+  ol.xml.setAttributeNS(node, 'http://www.w3.org/2001/XMLSchema-instance',
+    'xsi:schemaLocation', this.schemaLocation_);
+  node.setAttribute('xmlns:gml', 'http://www.opengis.net/gml/3.2');
+  var context = {
+    node: node,
+    srsName: options.srsName,
+    featureNS: options.featureNS ? options.featureNS : this.featureNS_,
+    featurePrefix: options.featurePrefix,
+    geometryName: options.geometryName,
+    filter: filter,
+    propertyNames: options.propertyNames ? options.propertyNames : []
+  };
+  goog.asserts.assert(Array.isArray(options.featureTypes),
+    'options.featureTypes should be an array');
+  ol.format.WFS2.writeGetFeature_(node, options.featureTypes, [context]);
+  return node;
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {Array.<{string}>} featureTypes Feature types.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeGetFeature_ = function (node, featureTypes, objectStack) {
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  var item = ol.object.assign({}, context);
+  item.node = node;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.GETFEATURE_SERIALIZERS_,
+    ol.xml.makeSimpleNodeFactory('Query'), featureTypes,
+    objectStack);
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {string} featureType Feature type.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeQuery_ = function (node, featureType, objectStack) {
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  var featurePrefix = context['featurePrefix'];
+  var featureNS = context['featureNS'];
+  var propertyNames = context['propertyNames'];
+  var srsName = context['srsName'];
+  var prefix = featurePrefix ? featurePrefix + ':' : '';
+  node.setAttribute('typeNames', "schema-element(" + prefix + featureType + ")");
+  if (srsName) {
+    node.setAttribute('srsName', srsName);
+  }
+  if (featureNS) {
+    ol.xml.setAttributeNS(node, ol.format.WFS2.XMLNS, 'xmlns:' + featurePrefix,
+      featureNS);
+  }
+  var item = ol.object.assign({}, context);
+  item.node = node;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.QUERY_SERIALIZERS_,
+    ol.xml.makeSimpleNodeFactory('PropertyName'), propertyNames,
+    objectStack);
+  var filter = context['filter'];
+  if (filter) {
+    var child = ol.xml.createElementNS('http://www.opengis.net/fes/2.0', 'Filter');
+    node.appendChild(child);
+    ol.format.WFS2.writeFilterCondition_(child, filter, objectStack);
+  }
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeBboxFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.Bbox,
+    'must be bbox filter');
+
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  context.srsName = filter.srsName;
+
+  var item = ol.object.assign({}, context);
+  item.node = node;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.geometryName],
+    objectStack);
+  ol.format.GML32.prototype.writeGeometryElement(node, filter.extent, objectStack);
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeWithinFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.Within,
+    'must be within filter');
+
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  context.srsName = filter.srsName;
+
+  var item = ol.object.assign({}, context);
+  item.node = node;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.valueReference],
+    objectStack);
+  ol.format.GML32.prototype.writeGeometryElement(node, filter.polygon, objectStack);
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeDWithinFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.DWithin,
+    'must be within filter');
+
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  context.srsName = filter.srsName;
+
+  var item = ol.object.assign({}, context);
+  item.node = node;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.valueReference],
+    objectStack);
+
+  ol.format.GML3.prototype.writeGeometryElement(node, filter.geometry, objectStack);
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('Distance'), [{distance : filter.distance, unit : filter.unit}],
+    objectStack);
+};
+
+/**
+ * @param {Node} node Node to append a TextNode with the decimal to.
+ * @param {Object} object .
+ */
+ol.format.WFS2.writeDistance_ = function(node, object) {
+  node.setAttribute('uom', object.unit);
+  var distanceNode = ol.xml.DOCUMENT.createTextNode(object.distance);
+  node.appendChild(distanceNode);
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeIntersectsFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.Intersects,
+    'must be intersects filter');
+
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  context.srsName = filter.srsName;
+
+  var item = ol.object.assign({}, context);
+  item.node = node;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.valueReference],
+    objectStack);
+
+  ol.format.GML3.prototype.writeGeometryElement(node, filter.geometry, objectStack);
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('Distance'), [filter.distance],
+    objectStack);
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeFilterCondition_ = function (node, filter, objectStack) {
+  var item = {node: node};
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.GETFEATURE_SERIALIZERS_,
+    ol.xml.makeSimpleNodeFactory(filter.getTagName()),
+    [filter], objectStack);
+};
+
+/**
+ * @type {Object.<string, Object.<string, ol.XmlSerializer>>}
+ * @private
+ */
+ol.format.WFS2.GETFEATURE_SERIALIZERS_ = {
+  'http://www.opengis.net/wfs/2.0': {
+    'Query': ol.xml.makeChildAppender(ol.format.WFS2.writeQuery_)
+  },
+  'http://www.opengis.net/fes/2.0': {
+    'BBOX': ol.xml.makeChildAppender(ol.format.WFS2.writeBboxFilter_),
+    'Within' : ol.xml.makeChildAppender(ol.format.WFS2.writeWithinFilter_),
+    'DWithin' : ol.xml.makeChildAppender(ol.format.WFS2.writeDWithinFilter_),
+    'Intersects' : ol.xml.makeChildAppender(ol.format.WFS2.writeIntersectsFilter_)
+  }
+};
+
+/**
+ * @type {Object.<string, Object.<string, ol.XmlSerializer>>}
+ * @private
+ */
+ol.format.WFS2.FILTER_SERIALIZERS = {
+  'http://www.opengis.net/fes/2.0': {
+    "ValueReference" : ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode),
+    "Distance" : ol.xml.makeChildAppender(ol.format.WFS2.writeDistance_)
+  }
+};
+
+
+/**
+ * @type {Object.<string, Object.<string, ol.XmlSerializer>>}
+ * @private
+ */
+ol.format.WFS2.QUERY_SERIALIZERS_ = {
+  'http://www.opengis.net/wfs/2.0': {
+    'PropertyName': ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode)
+  }
 };
