@@ -74,6 +74,52 @@ ol.format.ogc.filter.bbox = function(geometryName, extent, opt_srsName) {
   return new ol.format.ogc.filter.Bbox(geometryName, extent, opt_srsName);
 };
 
+/**
+ * Create a `<WITHIN>` operator to test whether a geometry-valued property
+ * intersects a fixed geometry
+ *
+ * @param {!string} valueReference valueReference
+ * @param {!ol.geom.Polygon} polygon polygon.
+ * @param {string=} opt_srsName SRS name. No srsName attribute will be
+ *    set on geometries when this is not provided.
+ * @returns {!ol.format.ogc.filter.Within} `<WITHIN>` operator.
+ * @api
+ */
+ol.format.ogc.filter.within = function(valueReference, polygon, opt_srsName) {
+  return new ol.format.ogc.filter.Within(valueReference, polygon, opt_srsName);
+};
+
+/**
+ * Create a `<DWITHIN>` operator to test whether a geometry-valued property
+ * intersects within a distance with a fixed geometry
+ *
+ * @param {!string} valueReference valueReference
+ * @param {!ol.geom.Geometry} geometry .
+ * @param {number} distance .
+ * @param {string} unit .
+ * @param {string=} opt_srsName SRS name. No srsName attribute will be
+ *    set on geometries when this is not provided.
+ * @returns {!ol.format.ogc.filter.DWithin} `<DWITHIN>` operator.
+ * @api
+ */
+ol.format.ogc.filter.dwithin = function(valueReference, geometry, distance, unit, opt_srsName) {
+  return new ol.format.ogc.filter.DWithin(valueReference, geometry, distance, unit, opt_srsName);
+};
+
+/**
+ * Create a `<INTERSECTS>` operator to test whether a geometry-valued property
+ * intersects a fixed geometry
+ *
+ * @param {!string} valueReference valueReference
+ * @param {!ol.geom.Geometry} geometry .
+ * @param {string=} opt_srsName SRS name. No srsName attribute will be
+ *    set on geometries when this is not provided.
+ * @returns {!ol.format.ogc.filter.Intersects} `<INTERSECTS>` operator.
+ * @api
+ */
+ol.format.ogc.filter.intersects = function(valueReference, geometry, opt_srsName) {
+  return new ol.format.ogc.filter.Intersects(valueReference, geometry, opt_srsName);
+};
 
 /**
  * Creates a `<PropertyIsEqualTo>` comparison operator.
@@ -376,6 +422,133 @@ ol.format.ogc.filter.Bbox = function(geometryName, extent, opt_srsName) {
   this.srsName = opt_srsName;
 };
 goog.inherits(ol.format.ogc.filter.Bbox, ol.format.ogc.filter.Filter);
+
+
+/**
+ * @classdesc
+ * Represents a `<WITHIN>` operator to test whether a geometry-valued property
+ * intersects a fixed bounding box
+ *
+ * @constructor
+ * @param {!string} valueReference The attribute to compare with.
+ * @param {!ol.geom.Polygon} polygon The polygon for the filter.
+ * @param {string=} opt_srsName SRS name. No srsName attribute will be
+ *    set on geometries when this is not provided.
+ * @extends {ol.format.ogc.filter.Filter}
+ * @api
+ */
+ol.format.ogc.filter.Within = function(valueReference, polygon, opt_srsName) {
+
+  goog.base(this, 'Within');
+
+  /**
+   * @public
+   * @type {!string}
+   */
+  this.valueReference = valueReference;
+
+  /**
+   * @public
+   * @type {!ol.geom.Polygon}
+   */
+  this.polygon = polygon;
+
+  /**
+   * @public
+   * @type {string|undefined}
+   */
+  this.srsName = opt_srsName;
+};
+goog.inherits(ol.format.ogc.filter.Within, ol.format.ogc.filter.Filter);
+
+/**
+ * @classdesc
+ * Represents a `<DWITHIN>` operator to test whether a geometry-valued property
+ * intersects within a distance with a fixed geometry
+ *
+ * @constructor
+ * @param {!string} valueReference The attribute to compare with.
+ * @param {!ol.geom.Geometry} geometry The geometry for the filter.
+ * @param {number} distance distance
+ * @param {string} unit
+ * @param {string=} opt_srsName SRS name. No srsName attribute will be
+ *    set on geometries when this is not provided.
+ * @extends {ol.format.ogc.filter.Filter}
+ * @api
+ */
+ol.format.ogc.filter.DWithin = function(valueReference, geometry, distance, unit, opt_srsName) {
+
+  goog.base(this, 'DWithin');
+
+  /**
+   * @public
+   * @type {!string}
+   */
+  this.valueReference = valueReference;
+
+  /**
+   * @public
+   * @type {!ol.geom.Geometry}
+   */
+  this.geometry = geometry;
+
+  /**
+   * @public
+   * @type {number}
+   */
+  this.distance = distance;
+
+  /**
+   * @public
+   * @type {string}
+   */
+  this.unit = unit;
+
+  /**
+   * @public
+   * @type {string|undefined}
+   */
+  this.srsName = opt_srsName;
+};
+goog.inherits(ol.format.ogc.filter.DWithin, ol.format.ogc.filter.Filter);
+
+
+/**
+ * @classdesc
+ * Represents a `<INTERSECTS>` operator to test whether a geometry-valued property
+ * intersects a fixed geometry
+ *
+ * @constructor
+ * @param {!string} valueReference The attribute to compare with.
+ * @param {!ol.geom.Geometry} geometry The geometry for the filter.
+ * @param {string=} opt_srsName SRS name. No srsName attribute will be
+ *    set on geometries when this is not provided.
+ * @extends {ol.format.ogc.filter.Filter}
+ * @api
+ */
+ol.format.ogc.filter.Intersects = function(valueReference, geometry, opt_srsName) {
+
+  goog.base(this, 'Intersects');
+
+  /**
+   * @public
+   * @type {!string}
+   */
+  this.valueReference = valueReference;
+
+  /**
+   * @public
+   * @type {!ol.geom.Geometry}
+   */
+  this.geometry = geometry;
+
+  /**
+   * @public
+   * @type {string|undefined}
+   */
+  this.srsName = opt_srsName;
+};
+goog.inherits(ol.format.ogc.filter.Intersects, ol.format.ogc.filter.Filter);
 
 
 // Property comparison filters
