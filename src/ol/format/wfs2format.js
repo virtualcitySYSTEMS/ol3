@@ -345,6 +345,122 @@ ol.format.WFS2.writeFilterCondition_ = function (node, filter, objectStack) {
 };
 
 /**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeComparisonFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.ComparisonBinary,
+    'must be binary comparison filter');
+  if (filter.matchCase !== undefined) {
+    node.setAttribute('matchCase', filter.matchCase.toString());
+  }
+
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  var item = ol.object.assign({}, context);
+  item.node = node;
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.propertyName],
+    objectStack);
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('Literal'), [filter.expression],
+    objectStack);
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeIsBetweenFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.IsBetween,
+    'must be IsBetween comparison filter');
+
+  if (filter.matchCase !== undefined) {
+    node.setAttribute('matchCase', filter.matchCase.toString());
+  }
+
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  var item = ol.object.assign({}, context);
+  item.node = node;
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.propertyName],
+    objectStack);
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('LowerBoundary'), [filter.lowerBoundary],
+    objectStack);
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('UpperBoundary'), [filter.upperBoundary],
+    objectStack);
+
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {string} boundary boundaryValue.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeBoundary_ = function (node, boundary, objectStack) {
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  var item = ol.object.assign({}, context);
+  item.node = node;
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('Literal'), [boundary],
+    objectStack);
+};
+
+/**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeIsLikeFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.IsLike,
+    'must be IsLike comparison filter');
+
+  node.setAttribute('wildCard', filter.wildCard);
+  node.setAttribute('singleChar', filter.singleChar);
+  node.setAttribute('escapeChar', filter.escapeChar);
+  if (filter.matchCase !== undefined) {
+    node.setAttribute('matchCase', filter.matchCase.toString());
+  }
+
+  var context = objectStack[objectStack.length - 1];
+  goog.asserts.assert(goog.isObject(context), 'context should be an Object');
+  var item = ol.object.assign({}, context);
+  item.node = node;
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.propertyName],
+    objectStack);
+
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.FILTER_SERIALIZERS,
+    ol.xml.makeSimpleNodeFactory('Literal'), [filter.pattern],
+    objectStack);
+};
+
+/**
  * @type {Object.<string, Object.<string, ol.XmlSerializer>>}
  * @private
  */
@@ -356,7 +472,15 @@ ol.format.WFS2.GETFEATURE_SERIALIZERS_ = {
     'BBOX': ol.xml.makeChildAppender(ol.format.WFS2.writeBboxFilter_),
     'Within' : ol.xml.makeChildAppender(ol.format.WFS2.writeWithinFilter_),
     'DWithin' : ol.xml.makeChildAppender(ol.format.WFS2.writeDWithinFilter_),
-    'Intersects' : ol.xml.makeChildAppender(ol.format.WFS2.writeIntersectsFilter_)
+    'Intersects' : ol.xml.makeChildAppender(ol.format.WFS2.writeIntersectsFilter_),
+    'PropertyIsEqualTo': ol.xml.makeChildAppender(ol.format.WFS2.writeComparisonFilter_),
+    'PropertyIsNotEqualTo': ol.xml.makeChildAppender(ol.format.WFS2.writeComparisonFilter_),
+    'PropertyIsLessThan': ol.xml.makeChildAppender(ol.format.WFS2.writeComparisonFilter_),
+    'PropertyIsLessThanOrEqualTo': ol.xml.makeChildAppender(ol.format.WFS2.writeComparisonFilter_),
+    'PropertyIsGreaterThan': ol.xml.makeChildAppender(ol.format.WFS2.writeComparisonFilter_),
+    'PropertyIsGreaterThanOrEqualTo': ol.xml.makeChildAppender(ol.format.WFS2.writeComparisonFilter_),
+    'PropertyIsBetween': ol.xml.makeChildAppender(ol.format.WFS2.writeIsBetweenFilter_),
+    'PropertyIsLike': ol.xml.makeChildAppender(ol.format.WFS2.writeIsLikeFilter_)
   }
 };
 
@@ -367,7 +491,10 @@ ol.format.WFS2.GETFEATURE_SERIALIZERS_ = {
 ol.format.WFS2.FILTER_SERIALIZERS = {
   'http://www.opengis.net/fes/2.0': {
     "ValueReference" : ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode),
-    "Distance" : ol.xml.makeChildAppender(ol.format.WFS2.writeDistance_)
+    "Distance" : ol.xml.makeChildAppender(ol.format.WFS2.writeDistance_),
+    "Literal" : ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode),
+    "LowerBoundary" : ol.xml.makeChildAppender(ol.format.WFS2.writeBoundary_),
+    "UpperBoundary" : ol.xml.makeChildAppender(ol.format.WFS2.writeBoundary_),
   }
 };
 
