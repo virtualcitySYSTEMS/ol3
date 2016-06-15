@@ -236,7 +236,7 @@ ol.format.WFS2.writeBboxFilter_ = function(node, filter, objectStack) {
     ol.format.WFS2.FILTER_SERIALIZERS,
     ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.geometryName],
     objectStack);
-  ol.format.GML32.prototype.writeGeometryElement(node, filter.extent, objectStack);
+  ol.format.GML3.prototype.writeGeometryElement(node, filter.extent, objectStack);
 };
 
 /**
@@ -259,7 +259,7 @@ ol.format.WFS2.writeWithinFilter_ = function(node, filter, objectStack) {
     ol.format.WFS2.FILTER_SERIALIZERS,
     ol.xml.makeSimpleNodeFactory('ValueReference'), [filter.valueReference],
     objectStack);
-  ol.format.GML32.prototype.writeGeometryElement(node, filter.polygon, objectStack);
+  ol.format.GML3.prototype.writeGeometryElement(node, filter.polygon, objectStack);
 };
 
 /**
