@@ -2051,7 +2051,8 @@ olx.format.WFSOptions.prototype.schemaLocation;
  *     startIndex: (number|undefined),
  *     count: (number|undefined),
  *     bbox: (ol.Extent|undefined),
- *     filter: (ol.format.ogc.filter.Filter|undefined)}}
+ *     filter: (ol.format.ogc.filter.Filter|undefined),
+ *     allNs: (Object)}}
  * @api
  */
 olx.format.WFSWriteGetFeatureOptions;
@@ -2163,6 +2164,13 @@ olx.format.WFSWriteGetFeatureOptions.prototype.bbox;
  * @api
  */
 olx.format.WFSWriteGetFeatureOptions.prototype.filter;
+
+/**
+ * Object of all namespaces to be included
+ * @type {Object}
+ * @api
+ */
+olx.format.WFSWriteGetFeatureOptions.prototype.allNs;
 
 
 /**

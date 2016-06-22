@@ -147,7 +147,13 @@ ol.format.WFS2.prototype.writeGetFeature = function (options) {
   }
   ol.xml.setAttributeNS(node, 'http://www.w3.org/2001/XMLSchema-instance',
     'xsi:schemaLocation', this.schemaLocation_);
-  node.setAttribute('xmlns:gml', 'http://www.opengis.net/gml/3.2');
+  if (options.allNs){
+    for (var ns in options.allNs){
+      if (options.allNs.hasOwnProperty(ns)){
+        node.setAttribute('xmlns:' + ns, options.allNs[ns]);
+      }
+    }
+  }
   var context = {
     node: node,
     srsName: options.srsName,
@@ -461,6 +467,28 @@ ol.format.WFS2.writeIsLikeFilter_ = function(node, filter, objectStack) {
 };
 
 /**
+ * @param {Node} node Node.
+ * @param {ol.format.ogc.filter.Filter} filter Filter.
+ * @param {Array.<*>} objectStack Node stack.
+ * @private
+ */
+ol.format.WFS2.writeLogicalFilter_ = function(node, filter, objectStack) {
+  goog.asserts.assertInstanceof(filter, ol.format.ogc.filter.LogicalBinary,
+    'must be logical filter');
+  var item = {node: node};
+  var conditionA = filter.conditionA;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.GETFEATURE_SERIALIZERS_,
+    ol.xml.makeSimpleNodeFactory(conditionA.getTagName()),
+    [conditionA], objectStack);
+  var conditionB = filter.conditionB;
+  ol.xml.pushSerializeAndPop(item,
+    ol.format.WFS2.GETFEATURE_SERIALIZERS_,
+    ol.xml.makeSimpleNodeFactory(conditionB.getTagName()),
+    [conditionB], objectStack);
+};
+
+/**
  * @type {Object.<string, Object.<string, ol.XmlSerializer>>}
  * @private
  */
@@ -469,6 +497,7 @@ ol.format.WFS2.GETFEATURE_SERIALIZERS_ = {
     'Query': ol.xml.makeChildAppender(ol.format.WFS2.writeQuery_)
   },
   'http://www.opengis.net/fes/2.0': {
+    'And': ol.xml.makeChildAppender(ol.format.WFS2.writeLogicalFilter_),
     'BBOX': ol.xml.makeChildAppender(ol.format.WFS2.writeBboxFilter_),
     'Within' : ol.xml.makeChildAppender(ol.format.WFS2.writeWithinFilter_),
     'DWithin' : ol.xml.makeChildAppender(ol.format.WFS2.writeDWithinFilter_),

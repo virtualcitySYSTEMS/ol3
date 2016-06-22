@@ -77,6 +77,9 @@ ol.format.CityGML = function(opt_options) {
     'http://www.opengis.net/citygml/generics/2.0' : {
       'stringAttribute' : this.makeObjectGenericCityGMLPropertySetterAsAttribute(this.readGenericStringAttribute),
       'intAttribute' : this.makeObjectGenericCityGMLPropertySetterAsAttribute(this.readGenericIntAttribute)
+    },
+    'http://www.opengis.net/gml' : {
+      "boundedBy" : ol.xml.makeObjectPropertyPusher(this.readBoundedByElement, 'children')
     }
   };
 
@@ -212,6 +215,18 @@ ol.format.CityGML.prototype.readAddress = function(node, objectStack) {
   return object;
 };
 
+ol.format.CityGML.prototype.readBoundedByElement = function(node, objectStack) {
+  goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT,'node.nodeType should be ELEMENT');
+  var object = {
+    id : null,
+    type : '_3',
+    attributes : {},
+    children : []
+  };
+  object.attributes["extent"] = ol.xml.pushParseAndPop(object, ol.format.GML3.prototype.GEOMETRY_PARSERS_, node, objectStack, new ol.format.GML3({}));
+  return object;
+};
+
 
 ol.format.CityGML.prototype.readExternalReference = function(node, objectStack) {
   goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT,'node.nodeType should be ELEMENT');
@@ -254,6 +269,8 @@ ol.format.CityGML.prototype.readGenericIntAttribute = function(node, objectStack
   object[attributeName] = attributeValue;
   return object;
 };
+
+
 
 /**
  * Make an object property setter function and store the value under 'attributes'.
