@@ -150,7 +150,11 @@ ol.format.WFS2.prototype.writeGetFeature = function (options) {
   if (options.allNs){
     for (var ns in options.allNs){
       if (options.allNs.hasOwnProperty(ns)){
-        node.setAttribute('xmlns:' + ns, options.allNs[ns]);
+        //TODO this is a temporary solution to deal with ie11
+        //TODO after stringifying the node, the "__--__" is regexed into a ":"
+        //TODO should be replaced with a more elegant solution soon
+        node.setAttribute('xmlns__--__' + ns, options.allNs[ns]);
+        //ol.xml.setAttributeNS(node, ol.format.WFS2.XMLNS, 'xmlns:' + ns,options.allNs[ns]);
       }
     }
   }
