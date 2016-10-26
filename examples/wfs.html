@@ -1,0 +1,63 @@
+<html>
+
+<script src="../loader.js"></script>
+
+<script>
+  var wfs = new ol.format.WFS2();
+
+
+  var namespaces  = {}
+  namespaces["gml"] = "http://www.opengis.net/gml";
+  namespaces["core"] = "http://www.opengis.net/citygml/2.0";
+  namespaces["citydb"] = "http://www.3dcitydb.org/citygml-ade/3.0";
+  namespaces["tran"] = "http://www.opengis.net/citygml/transportation/2.0";
+  namespaces["wtr"] = "http://www.opengis.net/citygml/waterbody/2.0";
+  namespaces["grp"] = "http://www.opengis.net/citygml/cityobjectgroup/2.0";
+  namespaces["luse"] = "http://www.opengis.net/citygml/landuse/2.0";
+  namespaces["frn"] = "http://www.opengis.net/citygml/cityfurniture/2.0";
+  namespaces["app"] = "http://www.opengis.net/citygml/appearance/2.0";
+  namespaces["tex"] = "http://www.opengis.net/citygml/texturedsurface/2.0";
+  namespaces["bldg"] = "http://www.opengis.net/citygml/building/2.0";
+  namespaces["xal"] = "urn:oasis:names:tc:ciq:xsdschema:xAL:2.0";
+  namespaces["dem"] = "http://www.opengis.net/citygml/relief/2.0";
+  namespaces["veg"] = "http://www.opengis.net/citygml/vegetation/2.0";
+  namespaces["gen"] = "http://www.opengis.net/citygml/generics/2.0";
+  namespaces["brid"] = "http://www.opengis.net/citygml/bridge/2.0";
+  namespaces["tun"] = "http://www.opengis.net/citygml/tunnel/2.0";
+
+  var filter = new ol.format.filter.EqualTo("measuredHeight", "80");
+  //var filter = ol.format.filter.and(filter1, filter2);
+
+  var node = wfs.writeGetFeature({
+    featureNS: "http://www.opengis.net/citygml/building/2.0",
+    featurePrefix : "bldg",
+    featureTypes : ["Building"],
+    propertyNames : ["gml:boundedBy"],
+    filter : filter,
+    outputFormat : "application/gml+xml; version=3.1",
+    count : 10000,
+    allNs : namespaces
+  });
+
+  function xmlToString(xmlData) {
+
+    var xmlString;
+    //IE
+    if (window.ActiveXObject){
+      xmlString = xmlData.xml;
+    }
+    // code for Mozilla, Firefox, Opera, etc.
+    else{
+      xmlString = (new XMLSerializer()).serializeToString(xmlData);
+    }
+    return xmlString;
+  }
+
+  var request = xmlToString(node);
+  console.log(request);
+
+
+</script>
+
+
+</html>
