@@ -408,7 +408,7 @@ ol.format.GML3.prototype.FLAT_LINEAR_RINGS_PARSERS_ = {
 /**
  * @const
  * @type {Object.<string, Object.<string, ol.XmlParser>>}
- * @private
+ * @protected
  */
 ol.format.GML3.prototype.GEOMETRY_PARSERS_ = {
   'http://www.opengis.net/gml': {
