@@ -362,7 +362,7 @@ ol.format.WFS2.prototype.readTransactionResponseFromNode = function(node) {
  * @private
  */
 ol.format.WFS2.QUERY_SERIALIZERS_ = {
-  'http://www.opengis.net/wfs': {
+  'http://www.opengis.net/wfs/2.0': {
     'PropertyName': ol.xml.makeChildAppender(ol.format.XSD.writeStringTextNode)
   }
 };
