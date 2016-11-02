@@ -13,7 +13,7 @@ goog.require('ol.format.filter.Spatial');
  * @param {!string} geometryName Geometry name to use.
  * @param {!ol.geom.Geometry} geometry Geometry.
  * @param {!number} distance Distance.
- * @param {!number} unit Unit.
+ * @param {!string} unit Unit.
  * @param {string=} opt_srsName SRS name. No srsName attribute will be
  *    set on geometries when this is not provided.
  * @extends {ol.format.filter.Spatial}

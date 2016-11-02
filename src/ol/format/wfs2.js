@@ -531,7 +531,7 @@ ol.format.WFS2.writeQuery_ = function(node, featureType, objectStack) {
   var propertyNames = context['propertyNames'];
   var srsName = context['srsName'];
   var prefix = featurePrefix ? featurePrefix + ':' : '';
-  node.setAttribute('typeName', prefix + featureType);
+  node.setAttribute('typeNames', "schema-element(" + prefix + featureType + ")");
   if (srsName) {
     node.setAttribute('srsName', srsName);
   }
@@ -754,7 +754,7 @@ ol.format.WFS2.writeOgcExpression_ = function(tagName, node, value) {
  * @private
  */
 ol.format.WFS2.writeOgcPropertyName_ = function(node, value) {
-  ol.format.WFS2.writeOgcExpression_('PropertyName', node, value);
+  ol.format.WFS2.writeOgcExpression_('ValueReference', node, value);
 };
 
 
@@ -861,6 +861,19 @@ ol.format.WFS2.prototype.writeGetFeature = function(options) {
   }
   ol.xml.setAttributeNS(node, 'http://www.w3.org/2001/XMLSchema-instance',
       'xsi:schemaLocation', this.schemaLocation_);
+
+  if(options.allNs){
+    for (var ns in options.allNs){
+      if (options.allNs.hasOwnProperty(ns)){
+        //TODO this is a temporary solution to deal with ie11
+        //TODO after stringifying the node, the "__--__" is regexed into a ":"
+        //TODO should be replaced with a more elegant solution soon
+        node.setAttribute('xmlns__--__' + ns, options.allNs[ns]);
+        //ol.xml.setAttributeNS(node, ol.format.WFS2.XMLNS, 'xmlns:' + ns,options.allNs[ns]);
+      }
+    }
+  }
+
   /** @type {ol.XmlNodeStackItem} */
   var context = {
     node: node,

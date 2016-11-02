@@ -1,11 +1,24 @@
 <html>
 
 <script src="../loader.js"></script>
-
+<textarea rows=60 cols=60 id="request"></textarea>
 <script>
+  function xmlToString(xmlData) {
+
+    var xmlString;
+    //IE
+    if (window.ActiveXObject){
+      xmlString = xmlData.xml;
+    }
+    // code for Mozilla, Firefox, Opera, etc.
+    else{
+      xmlString = (new XMLSerializer()).serializeToString(xmlData);
+    }
+    xmlString = xmlString.replace(/__--__/g, ':');
+    return xmlString;
+  }
+
   var wfs = new ol.format.WFS2();
-
-
   var namespaces  = {}
   namespaces["gml"] = "http://www.opengis.net/gml";
   namespaces["core"] = "http://www.opengis.net/citygml/2.0";
@@ -24,39 +37,50 @@
   namespaces["gen"] = "http://www.opengis.net/citygml/generics/2.0";
   namespaces["brid"] = "http://www.opengis.net/citygml/bridge/2.0";
   namespaces["tun"] = "http://www.opengis.net/citygml/tunnel/2.0";
+  function test (name, options, result){
+    var node = wfs.writeGetFeature(options);
 
-  var filter = new ol.format.filter.EqualTo("measuredHeight", "80");
+    var request = xmlToString(node);
+    if(request === result){
+      console.log(name, " ", true);
+    }else{
+      console.log(name, " ", false);
+      console.log(request);
+      console.log(result);
+    }
+    //document.getElementById("request").innerHTML = request;
+    //console.log(request);
+  }
+
+
+  var greaterThan = new ol.format.filter.GreaterThan("bldg:measuredHeight", 80);
   //var filter = ol.format.filter.and(filter1, filter2);
-
-  var node = wfs.writeGetFeature({
+  var options ={
     featureNS: "http://www.opengis.net/citygml/building/2.0",
     featurePrefix : "bldg",
     featureTypes : ["Building"],
     propertyNames : ["gml:boundedBy"],
-    filter : filter,
+    filter : greaterThan,
     outputFormat : "application/gml+xml; version=3.1",
     count : 10000,
     allNs : namespaces
-  });
-
-  function xmlToString(xmlData) {
-
-    var xmlString;
-    //IE
-    if (window.ActiveXObject){
-      xmlString = xmlData.xml;
-    }
-    // code for Mozilla, Firefox, Opera, etc.
-    else{
-      xmlString = (new XMLSerializer()).serializeToString(xmlData);
-    }
-    return xmlString;
   }
+  test("greaterThan, Building", options, '<GetFeature xmlns="http://www.opengis.net/wfs/2.0" service="WFS" version="2.0.0" outputFormat="application/gml+xml; version=3.1" count="10000" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd" xmlns:gml="http://www.opengis.net/gml" xmlns:core="http://www.opengis.net/citygml/2.0" xmlns:citydb="http://www.3dcitydb.org/citygml-ade/3.0" xmlns:tran="http://www.opengis.net/citygml/transportation/2.0" xmlns:wtr="http://www.opengis.net/citygml/waterbody/2.0" xmlns:grp="http://www.opengis.net/citygml/cityobjectgroup/2.0" xmlns:luse="http://www.opengis.net/citygml/landuse/2.0" xmlns:frn="http://www.opengis.net/citygml/cityfurniture/2.0" xmlns:app="http://www.opengis.net/citygml/appearance/2.0" xmlns:tex="http://www.opengis.net/citygml/texturedsurface/2.0" xmlns:bldg="http://www.opengis.net/citygml/building/2.0" xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:dem="http://www.opengis.net/citygml/relief/2.0" xmlns:veg="http://www.opengis.net/citygml/vegetation/2.0" xmlns:gen="http://www.opengis.net/citygml/generics/2.0" xmlns:brid="http://www.opengis.net/citygml/bridge/2.0" xmlns:tun="http://www.opengis.net/citygml/tunnel/2.0"><Query typeNames="schema-element(bldg:Building)" xmlns:bldg="http://www.opengis.net/citygml/building/2.0"><PropertyName>gml:boundedBy</PropertyName><Filter xmlns="http://www.opengis.net/fes/2.0"><PropertyIsGreaterThan><ValueReference>bldg:measuredHeight</ValueReference><Literal>80</Literal></PropertyIsGreaterThan></Filter></Query></GetFeature>');
 
-  var request = xmlToString(node);
-  console.log(request);
+  var equalTo = new ol.format.filter.EqualTo("@gml:id", "BLDG_000300000024e941");
+  options["featureNS"] = "http://www.opengis.net/citygml/2.0";
+  options["filter"] = equalTo;
+  options["featurePrefix"] = ["core"];
+  options["featureTypes"] = ["_CityObject"];
+  test("gmlID Equalsm, CityObject", options, '<GetFeature xmlns="http://www.opengis.net/wfs/2.0" service="WFS" version="2.0.0" outputFormat="application/gml+xml; version=3.1" count="10000" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd" xmlns:gml="http://www.opengis.net/gml" xmlns:core="http://www.opengis.net/citygml/2.0" xmlns:citydb="http://www.3dcitydb.org/citygml-ade/3.0" xmlns:tran="http://www.opengis.net/citygml/transportation/2.0" xmlns:wtr="http://www.opengis.net/citygml/waterbody/2.0" xmlns:grp="http://www.opengis.net/citygml/cityobjectgroup/2.0" xmlns:luse="http://www.opengis.net/citygml/landuse/2.0" xmlns:frn="http://www.opengis.net/citygml/cityfurniture/2.0" xmlns:app="http://www.opengis.net/citygml/appearance/2.0" xmlns:tex="http://www.opengis.net/citygml/texturedsurface/2.0" xmlns:bldg="http://www.opengis.net/citygml/building/2.0" xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:dem="http://www.opengis.net/citygml/relief/2.0" xmlns:veg="http://www.opengis.net/citygml/vegetation/2.0" xmlns:gen="http://www.opengis.net/citygml/generics/2.0" xmlns:brid="http://www.opengis.net/citygml/bridge/2.0" xmlns:tun="http://www.opengis.net/citygml/tunnel/2.0"><Query typeNames="schema-element(core:_CityObject)" xmlns:core="http://www.opengis.net/citygml/2.0"><PropertyName>gml:boundedBy</PropertyName><Filter xmlns="http://www.opengis.net/fes/2.0"><PropertyIsEqualTo><ValueReference>@gml:id</ValueReference><Literal>BLDG_000300000024e941</Literal></PropertyIsEqualTo></Filter></Query></GetFeature>');
 
-
+  var point = new ol.geom.Point([52.49979008730757, 13.398406094014883])
+  var dWithin = new ol.format.filter.DWithin("gml:boundedBy", point, 400, "m", "urn:ogc:def:crs:EPSG::4326");
+  options.filter = dWithin;
+  options.featureNS = "http://www.opengis.net/citygml/vegetation/2.0";
+  options.featurePrefix = ["veg"];
+  options.featureTypes = ["SolitaryVegetationObject"];
+  test("dwithin, solitary", options, '<GetFeature xmlns="http://www.opengis.net/wfs/2.0" service="WFS" version="2.0.0" outputFormat="application/gml+xml; version=3.1" count="10000" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs/2.0 http://schemas.opengis.net/wfs/2.0/wfs.xsd" xmlns:gml="http://www.opengis.net/gml" xmlns:core="http://www.opengis.net/citygml/2.0" xmlns:citydb="http://www.3dcitydb.org/citygml-ade/3.0" xmlns:tran="http://www.opengis.net/citygml/transportation/2.0" xmlns:wtr="http://www.opengis.net/citygml/waterbody/2.0" xmlns:grp="http://www.opengis.net/citygml/cityobjectgroup/2.0" xmlns:luse="http://www.opengis.net/citygml/landuse/2.0" xmlns:frn="http://www.opengis.net/citygml/cityfurniture/2.0" xmlns:app="http://www.opengis.net/citygml/appearance/2.0" xmlns:tex="http://www.opengis.net/citygml/texturedsurface/2.0" xmlns:bldg="http://www.opengis.net/citygml/building/2.0" xmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0" xmlns:dem="http://www.opengis.net/citygml/relief/2.0" xmlns:veg="http://www.opengis.net/citygml/vegetation/2.0" xmlns:gen="http://www.opengis.net/citygml/generics/2.0" xmlns:brid="http://www.opengis.net/citygml/bridge/2.0" xmlns:tun="http://www.opengis.net/citygml/tunnel/2.0"><Query typeNames="schema-element(veg:SolitaryVegetationObject)" xmlns:veg="http://www.opengis.net/citygml/vegetation/2.0"><PropertyName>gml:boundedBy</PropertyName><Filter xmlns="http://www.opengis.net/fes/2.0"><DWithin><ValueReference>gml:boundedBy</ValueReference><Point xmlns="http://www.opengis.net/gml" srsName="urn:ogc:def:crs:EPSG::4326"><pos>13.398406094014883 52.49979008730757</pos></Point><Distance uom="m">400</Distance></DWithin></Filter></Query></GetFeature>');
 </script>
 
 
