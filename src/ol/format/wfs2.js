@@ -45,14 +45,7 @@ ol.format.WFS2 = function(opt_options) {
    * @type {ol.format.GMLBase}
    */
   this.gmlFormat_ = options.gmlFormat ?
-      options.gmlFormat : new ol.format.GML3();
-
-  /**
-   * @private
-   * @type {ol.format.GMLBase}
-   */
-  this.citygmlFormat_ = options.gmlFormat ?
-    options.citygmlFormat : new ol.format.CityGML();
+      options.gmlFormat : new ol.format.CityGML();
 
   /**
    * @private
@@ -125,12 +118,11 @@ ol.format.WFS2.prototype.readFeaturesFromNode = function(node, opt_options) {
   ol.obj.assign(context, this.getReadOptions(node,
       opt_options ? opt_options : {}));
   var objectStack = [context];
-  this.gmlFormat_.FEATURE_COLLECTION_PARSERS[ol.format.GMLBase.GMLNS][
-      'member'] =
-      ol.xml.makeArrayPusher(ol.format.GMLBase.prototype.readFeaturesInternal);
+  this.gmlFormat_.FEATURE_COLLECTION_PARSERS[ol.format.WFS2.WFSNS] = {}
+  this.gmlFormat_.FEATURE_COLLECTION_PARSERS[ol.format.WFS2.WFSNS][ 'member'] = ol.xml.makeArrayPusher(ol.format.WFS2.prototype.handleWFSMember, this);
   var features = ol.xml.pushParseAndPop([],
       this.gmlFormat_.FEATURE_COLLECTION_PARSERS, node,
-      objectStack, this.citygmlFormat_);
+      objectStack, this.gmlFormat_);
   if (!features) {
     features = [];
   }
@@ -201,15 +193,27 @@ ol.format.WFS2.prototype.readFeatureCollectionMetadataFromDocument = function(do
 };
 
 
+
+/**
+ * @param {Node} node Node.
+ * @param {Array.<*>} objectStack Object stack.
+ * @return {Array.<ol.Feature>} Features.
+ */
+ol.format.WFS2.prototype.handleWFSMember = function (node, objectStack) {
+  //goog.asserts.assert(node.nodeType == goog.dom.NodeType.ELEMENT, 'node.nodeType should be ELEMENT');
+  //var localName = ol.xml.getLocalName(node);
+  var feature = ol.xml.pushParseAndPop([], this.gmlFormat_.FEATURE_COLLECTION_PARSERS, node, objectStack, this.gmlFormat_);
+  return feature;
+};
+
 /**
  * @const
  * @type {Object.<string, Object.<string, ol.XmlParser>>}
  * @private
  */
 ol.format.WFS2.FEATURE_COLLECTION_PARSERS_ = {
-  'http://www.opengis.net/gml': {
-    'boundedBy': ol.xml.makeObjectPropertySetter(
-        ol.format.GMLBase.prototype.readGeometryElement, 'bounds')
+  'http://www.opengis.net/wfs/2.0': {
+    'member': ol.xml.makeArrayPusher(ol.format.WFS2.prototype.handleWFSMember)
   }
 };
 
@@ -862,13 +866,13 @@ ol.format.WFS2.prototype.writeGetFeature = function(options) {
   ol.xml.setAttributeNS(node, 'http://www.w3.org/2001/XMLSchema-instance',
       'xsi:schemaLocation', this.schemaLocation_);
 
-  if(options.allNs){
-    for (var ns in options.allNs){
-      if (options.allNs.hasOwnProperty(ns)){
+  if(options["allNs"]){
+    for (var ns in options["allNs"]){
+      if (options["allNs"].hasOwnProperty(ns)){
         //TODO this is a temporary solution to deal with ie11
         //TODO after stringifying the node, the "__--__" is regexed into a ":"
         //TODO should be replaced with a more elegant solution soon
-        node.setAttribute('xmlns__--__' + ns, options.allNs[ns]);
+        node.setAttribute('xmlns__--__' + ns, options["allNs"][ns]);
         //ol.xml.setAttributeNS(node, ol.format.WFS2.XMLNS, 'xmlns:' + ns,options.allNs[ns]);
       }
     }

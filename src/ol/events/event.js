@@ -14,6 +14,7 @@ goog.provide('ol.events.Event');
  * @constructor
  * @implements {oli.events.Event}
  * @param {string} type Type.
+ * @api experimental
  */
 ol.events.Event = function(type) {
 
