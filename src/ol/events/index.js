@@ -170,6 +170,7 @@ ol.events.listen = function(target, type, listener, opt_this, opt_once) {
  * @param {Object=} opt_this Object referenced by the `this` keyword in the
  *     listener. Default is the `target`.
  * @return {ol.EventsKey} Key for unlistenByKey.
+ * @api experimental
  */
 ol.events.listenOnce = function(target, type, listener, opt_this) {
   return ol.events.listen(target, type, listener, opt_this, true);
@@ -188,6 +189,7 @@ ol.events.listenOnce = function(target, type, listener, opt_this) {
  * @param {ol.EventsListenerFunctionType} listener Listener.
  * @param {Object=} opt_this Object referenced by the `this` keyword in the
  *     listener. Default is the `target`.
+ * @api experimental
  */
 ol.events.unlisten = function(target, type, listener, opt_this) {
   var listeners = ol.events.getListeners(target, type);
@@ -209,6 +211,7 @@ ol.events.unlisten = function(target, type, listener, opt_this) {
  * {@link ol.events.listen} or {@link ol.events.listenOnce}.
  *
  * @param {ol.EventsKey} key The key.
+ * @api experimental
  */
 ol.events.unlistenByKey = function(key) {
   if (key && key.target) {
@@ -233,6 +236,7 @@ ol.events.unlistenByKey = function(key) {
  * {@link https://google.github.io/closure-library/api/source/closure/goog/events/events.js.src.html}
  *
  * @param {ol.EventTargetLike} target Target.
+ * @api experimental
  */
 ol.events.unlistenAll = function(target) {
   var listenerMap = ol.events.getListenerMap_(target);
