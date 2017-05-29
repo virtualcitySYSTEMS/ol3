@@ -21,6 +21,7 @@ goog.require('ol.events.Event');
  *    more listeners after this one will be called. Same as when the listener
  *    returns false.
  *
+ * @abstract
  * @constructor
  * @extends {ol.Disposable}
  */
