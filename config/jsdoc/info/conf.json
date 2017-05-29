@@ -12,6 +12,7 @@
     "plugins": [
         "config/jsdoc/info/api-plugin",
         "config/jsdoc/info/define-plugin",
-        "config/jsdoc/info/virtual-plugin"
+        "config/jsdoc/info/virtual-plugin",
+        "config/jsdoc/info/typedefs"
     ]
 }

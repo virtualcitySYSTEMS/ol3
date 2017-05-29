@@ -36,7 +36,7 @@ exports.publish = function(data, opts) {
               return true;
             }
           }
-          return (typeof this.api == 'string' ||
+          return (typeof this.api == 'string' || this.kind == 'typedef' ||
               this.meta && (/[\\\/]externs$/).test(this.meta.path));
         }
       ],
