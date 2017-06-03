@@ -636,7 +636,7 @@ ol.format.WFS2.writeLogicalFilter_ = function(node, filter, objectStack) {
   var item = {node: node};
   filter.conditions.forEach(function(condition) {
     ol.xml.pushSerializeAndPop(item,
-    ol.format.WFS.GETFEATURE_SERIALIZERS_,
+    ol.format.WFS2.GETFEATURE_SERIALIZERS_,
     ol.xml.makeSimpleNodeFactory(condition.getTagName()),
     [condition], objectStack);
   });
