@@ -765,9 +765,10 @@ ol.source.Vector.prototype.loadFeatures = function(
  * at once, use the {@link ol.source.Vector#clear source.clear()} method
  * instead.
  * @param {ol.Feature} feature Feature to remove.
+ * @param {boolean=} silent
  * @api
  */
-ol.source.Vector.prototype.removeFeature = function(feature) {
+ol.source.Vector.prototype.removeFeature = function(feature, silent) {
   var featureKey = ol.getUid(feature).toString();
   if (featureKey in this.nullGeometryFeatures_) {
     delete this.nullGeometryFeatures_[featureKey];
@@ -777,7 +778,9 @@ ol.source.Vector.prototype.removeFeature = function(feature) {
     }
   }
   this.removeFeatureInternal(feature);
-  this.changed();
+  if (!silent) {
+    this.changed();
+  }
 };
 
 
