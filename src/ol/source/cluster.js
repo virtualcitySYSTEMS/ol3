@@ -46,6 +46,12 @@ ol.source.Cluster = function(options) {
   this.distance_ = options.distance !== undefined ? options.distance : 20;
 
   /**
+   * @type {boolean}
+   * @private
+   */
+  this.paused_ = false;
+
+  /**
    * @type {Array.<ol.Feature>}
    * @private
    */
@@ -119,12 +125,27 @@ ol.source.Cluster.prototype.setDistance = function(distance) {
   this.refresh_();
 };
 
+/**
+ * Pauses the cluster refresh
+ * @param {boolean} pause
+ * @api
+ */
+ol.source.Cluster.prototype.setPause = function(pause) {
+  this.paused_ = pause;
+  if (!this.paused_) {
+    this.refresh_();
+  }
+};
+
 
 /**
  * handle the source changing
  * @private
  */
 ol.source.Cluster.prototype.refresh_ = function() {
+  if (this.paused_) {
+    return;
+  }
   this.clear();
   this.cluster_();
   this.addFeatures(this.features_);
