@@ -88,7 +88,7 @@ ol.Object.changeEventTypeCache_ = {};
 ol.Object.getChangeEventType = function(key) {
   return ol.Object.changeEventTypeCache_.hasOwnProperty(key) ?
       ol.Object.changeEventTypeCache_[key] :
-      (ol.Object.changeEventTypeCache_[key] = 'change:' + key);
+      (ol.Object.changeEventTypeCache_[key] = 'change:' + key.toString());
 };
 
 
@@ -169,7 +169,10 @@ ol.Object.prototype.set = function(key, value, opt_silent) {
  */
 ol.Object.prototype.setProperties = function(values, opt_silent) {
   var key;
-  for (key in values) {
+  var keys = Object.keys(values);
+  var i = keys.length;
+  for (i; i--;) {
+    key = keys[i];
     this.set(key, values[key], opt_silent);
   }
 };
