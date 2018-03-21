@@ -4,8 +4,6 @@ goog.require('ol');
 goog.require('ol.ObjectEventType');
 goog.require('ol.Observable');
 goog.require('ol.events.Event');
-goog.require('ol.obj');
-
 
 /**
  * @classdesc
@@ -113,7 +111,7 @@ ol.Object.prototype.get = function(key) {
  * @api
  */
 ol.Object.prototype.getKeys = function() {
-  return Object.keys(this.values_);
+  return [].concat(Object.keys(this.values_), Object.getOwnPropertySymbols(this.values_));
 };
 
 
@@ -123,7 +121,7 @@ ol.Object.prototype.getKeys = function() {
  * @api
  */
 ol.Object.prototype.getProperties = function() {
-  return ol.obj.assign({}, this.values_);
+  return Object.assign({}, this.values_);
 };
 
 
@@ -168,12 +166,14 @@ ol.Object.prototype.set = function(key, value, opt_silent) {
  * @api
  */
 ol.Object.prototype.setProperties = function(values, opt_silent) {
-  var key;
-  var keys = Object.keys(values);
-  var i = keys.length;
-  for (i; i--;) {
-    key = keys[i];
-    this.set(key, values[key], opt_silent);
+  if (values) {
+    var key;
+    var keys = [].concat(Object.keys(values), Object.getOwnPropertySymbols(values));
+    var length = keys.length;
+    for (var i = 0; i < length; i++) {
+      key = keys[i];
+      this.set(key, values[key], opt_silent);
+    }
   }
 };
 
