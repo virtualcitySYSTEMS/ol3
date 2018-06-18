@@ -94,6 +94,7 @@ ol.Sphere.prototype.haversineDistance = function(c1, c2) {
  *     point and the target point.
  * @param {number} bearing The bearing (in radians).
  * @return {ol.Coordinate} The target point.
+ * @api
  */
 ol.Sphere.prototype.offset = function(c1, distance, bearing) {
   var lat1 = ol.math.toRadians(c1[1]);
