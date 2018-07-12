@@ -462,6 +462,9 @@ ol.geom.Polygon.makeRegular = function(polygon, center, radius, opt_angle) {
     angle = startAngle + (ol.math.modulo(i, sides) * 2 * Math.PI / sides);
     flatCoordinates[offset] = center[0] + (radius * Math.cos(angle));
     flatCoordinates[offset + 1] = center[1] + (radius * Math.sin(angle));
+    for (var j = 2; j < stride; j++) {
+      flatCoordinates[offset + j] = center[j];
+    }
   }
   polygon.setFlatCoordinates(layout, flatCoordinates, ends);
 };
