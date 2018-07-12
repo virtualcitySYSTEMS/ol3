@@ -427,16 +427,21 @@ ol.geom.Polygon.fromCircle = function(circle, opt_sides, opt_angle) {
   var sides = opt_sides ? opt_sides : 32;
   var stride = circle.getStride();
   var layout = circle.getLayout();
+  var center = circle.getCenter();
   var polygon = new ol.geom.Polygon(null, layout);
   var arrayLength = stride * (sides + 1);
   var flatCoordinates = new Array(arrayLength);
-  for (var i = 0; i < arrayLength; i++) {
+  for (var i = 0; i < arrayLength; i += stride) {
     flatCoordinates[i] = 0;
+    flatCoordinates[i + 1] = 0;
+    for (var j = 2; j < stride; j++) {
+      flatCoordinates[i + j] = center[j];
+    }
   }
   var ends = [flatCoordinates.length];
   polygon.setFlatCoordinates(layout, flatCoordinates, ends);
   ol.geom.Polygon.makeRegular(
-      polygon, circle.getCenter(), circle.getRadius(), opt_angle);
+      polygon, center, circle.getRadius(), opt_angle);
   return polygon;
 };
 
@@ -462,9 +467,6 @@ ol.geom.Polygon.makeRegular = function(polygon, center, radius, opt_angle) {
     angle = startAngle + (ol.math.modulo(i, sides) * 2 * Math.PI / sides);
     flatCoordinates[offset] = center[0] + (radius * Math.cos(angle));
     flatCoordinates[offset + 1] = center[1] + (radius * Math.sin(angle));
-    for (var j = 2; j < stride; j++) {
-      flatCoordinates[offset + j] = center[j];
-    }
   }
   polygon.setFlatCoordinates(layout, flatCoordinates, ends);
 };
