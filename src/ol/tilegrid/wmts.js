@@ -31,7 +31,8 @@ ol.tilegrid.WMTS = function(options) {
     resolutions: options.resolutions,
     tileSize: options.tileSize,
     tileSizes: options.tileSizes,
-    sizes: options.sizes
+    sizes: options.sizes,
+    minZoom: options.minZoom
   });
 };
 ol.inherits(ol.tilegrid.WMTS, ol.tilegrid.TileGrid);
