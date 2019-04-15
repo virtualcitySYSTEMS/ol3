@@ -26,22 +26,40 @@ ol.format.CityGML = function(opt_options) {
       options.schemaLocation : ol.format.CityGML.schemaLocation_;
 
   this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/building/2.0'] = {
-    'GenericCityObject' : ol.xml.makeReplacer(this.readGenericCityObjectFeature),
-    'Building' : ol.xml.makeReplacer(this.readBuildingFeature),
-    'Bridge' : ol.xml.makeReplacer(this.readBridgeFeature),
-    'Tunnel' : ol.xml.makeReplacer(this.readTunnelFeature),
-    'CityFurniture' : ol.xml.makeReplacer(this.readCityFurnitureFeature),
-    'CityObjectGroup' : ol.xml.makeReplacer(this.readCityObjectGroupFeature),
-    'LandUse' : ol.xml.makeReplacer(this.readLandUseFeature),
+    'Building' : ol.xml.makeReplacer(this.readBuildingFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/bridge/2.0'] = {
+    'Bridge' : ol.xml.makeReplacer(this.readBridgeFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/generics/2.0'] = {
+    'GenericCityObject' : ol.xml.makeReplacer(this.readGenericCityObjectFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/tunnel/2.0'] = {
+    'Tunnel' : ol.xml.makeReplacer(this.readTunnelFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/cityfurniture/2.0'] = {
+    'CityFurniture' : ol.xml.makeReplacer(this.readCityFurnitureFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/cityobjectgroup/2.0'] = {
+    'CityObjectGroup' : ol.xml.makeReplacer(this.readCityObjectGroupFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/landuse/2.0'] = {
+    'LandUse' : ol.xml.makeReplacer(this.readLandUseFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/transportation/2.0'] = {
     'TransportationComplex' : ol.xml.makeReplacer(this.readTransportationComplexFeature),
     'Railway' : ol.xml.makeReplacer(this.readRailwayFeature),
     'Road' : ol.xml.makeReplacer(this.readRoadFeature),
     'Track' : ol.xml.makeReplacer(this.readTrackFeature),
-    'Square' : ol.xml.makeReplacer(this.readSquareFeature),
+    'Square' : ol.xml.makeReplacer(this.readSquareFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/vegetation/2.0'] = {
     'SolitaryVegetationObject' : ol.xml.makeReplacer(this.readSolitaryVegetationObjectFeature),
-    'PlantCover' : ol.xml.makeReplacer(this.readPlantCoverFeature),
+    'PlantCover' : ol.xml.makeReplacer(this.readPlantCoverFeature)
+  };
+  this.FEATURE_COLLECTION_PARSERS['http://www.opengis.net/citygml/waterbody/2.0'] = {
     'WaterBody' : ol.xml.makeReplacer(this.readWaterBodyFeature)
-  }
+  };
 };
 ol.inherits(ol.format.CityGML, ol.format.GML3);
 
