@@ -159,11 +159,14 @@ ol.inherits(ol.source.Vector, ol.source.Source);
  * at once, call {@link ol.source.Vector#addFeatures source.addFeatures()}
  * instead.
  * @param {ol.Feature} feature Feature to add.
+ * @param {boolean=} silent
  * @api
  */
-ol.source.Vector.prototype.addFeature = function(feature) {
+ol.source.Vector.prototype.addFeature = function(feature, silent) {
   this.addFeatureInternal(feature);
-  this.changed();
+  if (!silent) {
+    this.changed();
+  }
 };
 
 
