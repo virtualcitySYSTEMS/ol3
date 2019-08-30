@@ -384,9 +384,9 @@ ol.format.WFS2.writeFeature_ = function(node, feature, objectStack) {
  */
 ol.format.WFS2.writeOgcFidFilter_ = function(node, fid, objectStack) {
   var filter = ol.xml.createElementNS(ol.format.WFS2.OGCNS, 'Filter');
-  var child = ol.xml.createElementNS(ol.format.WFS2.OGCNS, 'FeatureId');
+  var child = ol.xml.createElementNS(ol.format.WFS2.OGCNS, 'ResourceId');
   filter.appendChild(child);
-  child.setAttribute('fid', fid);
+  child.setAttribute('rid', fid);
   node.appendChild(filter);
 };
 
@@ -459,7 +459,7 @@ ol.format.WFS2.writeUpdate_ = function(node, feature, objectStack) {
  * @private
  */
 ol.format.WFS2.writeProperty_ = function(node, pair, objectStack) {
-  var name = ol.xml.createElementNS(ol.format.WFS2.WFSNS, 'Name');
+  var name = ol.xml.createElementNS(ol.format.WFS2.WFSNS, 'ValueReference');
   node.appendChild(name);
   ol.format.XSD.writeStringTextNode(name, pair.name);
   if (pair.value !== undefined && pair.value !== null) {
