@@ -229,7 +229,7 @@ class Feature extends BaseObject {
    * Set the style for the feature.  This can be a single style object, an array
    * of styles, or a function that takes a resolution and returns an array of
    * styles. If it is `null` the feature has no style (a `null` style).
-   * @param {import("./style/Style.js").StyleLike} style Style for this feature.
+   * @param {?import("./style/Style.js").StyleLike=} style Style for this feature.
    * @api
    * @fires module:ol/events/Event~BaseEvent#event:change
    */

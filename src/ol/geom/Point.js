@@ -87,7 +87,10 @@ class Point extends SimpleGeometry {
   }
 
   /**
-   * @inheritDoc
+   * Set the coordinates of the Point.
+   * @param {import("../coordinate.js").Coordinate} coordinates Coordinates.
+   * @param {import("./GeometryLayout.js").default=} opt_layout Layout.
+   * @override
    * @api
    */
   setCoordinates(coordinates, opt_layout) {
