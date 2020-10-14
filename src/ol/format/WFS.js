@@ -852,6 +852,7 @@ const GETFEATURE_SERIALIZERS = {
     'Contains': makeChildAppender(writeContainsFilter),
     'Intersects': makeChildAppender(writeIntersectsFilter),
     'Within': makeChildAppender(writeWithinFilter),
+    'DWithin': makeChildAppender(writeDWithinFilter),
     'PropertyIsEqualTo': makeChildAppender(writeComparisonFilter),
     'PropertyIsNotEqualTo': makeChildAppender(writeComparisonFilter),
     'PropertyIsLessThan': makeChildAppender(writeComparisonFilter),
@@ -976,6 +977,24 @@ function writeWithinFilter(node, filter, objectStack) {
 
   writeOgcPropertyName(node, filter.geometryName);
   GML3.prototype.writeGeometryElement(node, filter.geometry, objectStack);
+}
+
+/**
+ * @param {Node} node Node.
+ * @param {import("./filter/DWithin.js").default} filter Filter.
+ * @param {Array<*>} objectStack Node stack.
+ */
+function writeDWithinFilter(node, filter, objectStack) {
+  const context = objectStack[objectStack.length - 1];
+  context['srsName'] = filter.srsName;
+
+  writeOgcPropertyName(node, filter.geometryName);
+  GML3.prototype.writeGeometryElement(node, filter.geometry, objectStack);
+
+  const distance = createElementNS(OGCNS, 'Distance');
+  writeStringTextNode(distance, filter.distance.toString());
+  distance.setAttribute('uom', filter.unit);
+  node.appendChild(distance);
 }
 
 /**
