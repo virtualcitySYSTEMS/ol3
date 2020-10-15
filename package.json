@@ -111,6 +111,7 @@
     "yargs": "^16.0.3"
   },
   "eslintConfig": {
+    "root": true,
     "extends": "openlayers",
     "plugins": [
       "@openlayers"
