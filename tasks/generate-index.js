@@ -20,7 +20,7 @@ async function getSymbols() {
 function getImport(symbol, member) {
   const defaultExport = symbol.name.split('~');
   const namedExport = symbol.name.split('.');
-  if (defaultExport.length > 1 && defaultExport[0].indexOf('.') === -1) {
+  if (defaultExport.length > 1) {
     const from = defaultExport[0].replace(/^module\:/, './');
     const importName = from.replace(/[.\/]+/g, '$');
     return `import ${importName} from '${from}';`;
@@ -53,11 +53,8 @@ function formatSymbolExport(symbol, namespaces, imports) {
     namespaces[line] =
       (line in namespaces ? namespaces[line] : true) && i < ii - 1;
   }
-  line += ` = ${importName} || {};`;
-  const imp = getImport(symbol, nsParts.pop());
-  if (imp) {
-    imports[imp] = true;
-  }
+  line += ` = ${importName};`;
+  imports[getImport(symbol, nsParts.pop())] = true;
   return line;
 }
 
@@ -71,15 +68,18 @@ function formatSymbolExport(symbol, namespaces, imports) {
 function generateExports(symbols) {
   const namespaces = {};
   const imports = [];
-  const blocks = [];
+  let blocks = [];
   symbols.forEach(function (symbol) {
     const name = symbol.name;
     if (name.indexOf('#') == -1) {
       const imp = getImport(symbol);
       if (imp) {
-        imports[imp] = true;
+        imports[getImport(symbol)] = true;
       }
-      blocks.push(formatSymbolExport(symbol, namespaces, imports));
+      const block = formatSymbolExport(symbol, namespaces, imports);
+      if (block !== blocks[blocks.length - 1]) {
+        blocks.push(block);
+      }
     }
   });
   const nsdefs = [];
@@ -89,10 +89,11 @@ function generateExports(symbols) {
       nsdefs.push(`${ns[i]} = {};`);
     }
   }
-  const defs = ['\nvar ol = {};'].concat(nsdefs, [...new Set(blocks)]);
-  const lines = Object.keys(imports).concat(defs.sort());
-  lines.push('', 'export default ol;');
-  return lines.join('\n');
+  blocks = Object.keys(imports)
+    .concat('\nvar ol = {};\n', nsdefs.sort())
+    .concat(blocks.sort());
+  blocks.push('', 'export default ol;');
+  return blocks.join('\n');
 }
 
 /**
